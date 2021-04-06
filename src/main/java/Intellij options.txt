@@ -1,0 +1,4 @@
+set cellcom as excluded
+file->proj. stracture->set lib as excluded
+
+set log4j as source
