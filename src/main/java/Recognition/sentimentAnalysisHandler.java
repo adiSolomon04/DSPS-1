@@ -18,14 +18,11 @@ import jdk.nashorn.internal.runtime.options.Options;
 
 public class sentimentAnalysisHandler {
     private static StanfordCoreNLP sentimentPipeline;
-
     public sentimentAnalysisHandler() {
         Properties props = new Properties();
         props.put("annotators", "tokenize, ssplit, parse, sentiment");
-        sentimentPipeline = new StanfordCoreNLP(props);
+         sentimentPipeline = new StanfordCoreNLP(props);
     }
-
-
     public static int findSentiment(String review) {
         int mainSentiment = 0;
         if (review!= null && review.length() > 0) {

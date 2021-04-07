@@ -2,6 +2,7 @@ package Recognition;
 
 import java.util.List;
 import java.util.Properties;
+import edu.stanford.nlp.ie.machinereading.BasicEntityExtractor;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreAnnotations.NamedEntityTagAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
@@ -18,14 +19,13 @@ import edu.stanford.nlp.util.CoreMap;
 
 public class namedEntityRecognitionHandler {
     private static StanfordCoreNLP NERPipeline;
-
-    public namedEntityRecognitionHandler(){
+    public namedEntityRecognitionHandler() {
         Properties props = new Properties();
-        props.put("annotators","tokenize , ssplit, pos, lemma, ner");
+        props.put("annotators", "tokenize , ssplit, pos, lemma, ner");
         NERPipeline = new StanfordCoreNLP(props);
     }
 
-    public static String printEntities(String review){
+    public static void printEntities(String review){
         // create an empty Annotation just with the given text
         Annotation document = new Annotation(review);
         // run all Annotators on this text
@@ -33,21 +33,17 @@ public class namedEntityRecognitionHandler {
         // these are all the sentences in this document
         // a CoreMap is essentially a Map that uses class objects as keys and has values with custom types
         List<CoreMap> sentences = document.get(SentencesAnnotation.class);
-        String Entities="";
         for(CoreMap sentence: sentences) {
             // traversing the words in the current sentence
             // a CoreLabel is a CoreMap with additional token-specific methods
-
             for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
                 // this is the text of the token
                 String word = token.get(TextAnnotation.class);
                 // this is the NER label of the token
                 String ne = token.get(NamedEntityTagAnnotation.class);
-                Entities = Entities + "\t" +word + ":" +ne;
-                //System.out.println("\t-" + word + ":" + ne);
+                System.out.println("\t-" + word + ":" + ne);
             }
         }
-        return Entities;
     }
 
 }
