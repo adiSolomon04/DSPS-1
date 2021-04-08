@@ -54,13 +54,13 @@ public class CreateInstance {
         }
  
         String name = args[0];
-        String amiId = "ami-076515f20540e6e0b";
+        String amiId = "ami-5b41123e";
         // snippet-start:[ec2.java2.create_instance.main]
         //Ec2Client ec2 = Ec2Client.create();
         Ec2Client ec2 = Ec2Client.builder()
                 .region(Region.US_EAST_1)
                 .build();
- 
+
         RunInstancesRequest runRequest = RunInstancesRequest.builder()
                 .instanceType(InstanceType.T2_MICRO)
                 .imageId(amiId)
@@ -68,7 +68,7 @@ public class CreateInstance {
                 .minCount(1)
                 .userData(Base64.getEncoder().encodeToString("".getBytes()))
                 .build();
- 
+
         RunInstancesResponse response = ec2.runInstances(runRequest);
  
         String instanceId = response.instances().get(0).instanceId();
