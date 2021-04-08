@@ -13,56 +13,77 @@
  * limitations under the License.
  */
 package com.example.s3;
-// snippet-start:[s3.java2.s3_object_operations.complete]
-// snippet-start:[s3.java2.s3_object_operations.import]
  
+import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.file.Paths;
-import java.util.Random;
-import software.amazon.awssdk.regions.Region;
+
 import software.amazon.awssdk.regions.Region;
 
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.CompleteMultipartUploadRequest;
-import software.amazon.awssdk.services.s3.model.CompletedMultipartUpload;
-import software.amazon.awssdk.services.s3.model.CompletedPart;
 import software.amazon.awssdk.services.s3.model.CreateBucketConfiguration;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
-import software.amazon.awssdk.services.s3.model.CreateMultipartUploadRequest;
-import software.amazon.awssdk.services.s3.model.CreateMultipartUploadResponse;
 import software.amazon.awssdk.services.s3.model.DeleteBucketRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
-import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Object;
-import software.amazon.awssdk.services.s3.model.UploadPartRequest;
-import software.amazon.awssdk.services.s3.paginators.ListObjectsV2Iterable;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
  
 public class S3ObjectOperations {
- 
+
     private static S3Client s3;
- 
+    private static  String bucket_name = "dsps-s3-adieran-2021";
+
+    /*
+    Need an open bucket on aws called as bucket_name
+     */
     public static void main(String[] args) throws IOException {
-        Region region = Region.US_WEST_2;
+        //Open s3 instance + new bucket
+        Region region = Region.US_EAST_1;
         s3 = S3Client.builder().region(region).build();
- 
- 
-        String bucket = "bucket" + System.currentTimeMillis();
-        String key = "key";
- 
-        createBucket(bucket, region);
- 
+        //String CurrentDir = System.getProperty("user.dir");
+        //String bucket = "dsps-s3-adieran-2021";
+        //createBucket(bucket, region);
+
+        String file_path = "B000EVOSE4.txt";
+        String key = "input_lined_json.txt";
+
         // Put Object
-        s3.putObject(PutObjectRequest.builder().bucket(bucket).key(key)
+        s3.putObject(PutObjectRequest.builder().bucket(bucket_name).key(key)
                         .build(),
-                RequestBody.fromByteBuffer(getRandomByteBuffer(10000)));
- 
- 
+                RequestBody.fromFile(new File(file_path)));
+
+        // Get Object
+        s3.getObject(GetObjectRequest.builder().bucket(bucket_name).key(key).build(),
+                ResponseTransformer.toFile(new File("bin/" +"test"+ ".txt"))); //.html
+
+        // Delete Object
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(bucket_name).key(key).build();
+        s3.deleteObject(deleteObjectRequest);
+
+        deleteBucket(bucket_name);
+
+    }
+
+    private static void createBucket(String bucket, Region region) {
+        s3.createBucket(CreateBucketRequest
+                .builder()
+                .bucket(bucket)
+                .createBucketConfiguration(
+                        CreateBucketConfiguration.builder()
+                                .locationConstraint(region.id())
+                                .build())
+                .build());
+
+        System.out.println(bucket);
+    }
+    private static void deleteBucket(String bucket) {
+        DeleteBucketRequest deleteBucketRequest = DeleteBucketRequest.builder().bucket(bucket).build();
+        s3.deleteBucket(deleteBucketRequest);
+    }
+}
+
+    /*
         // Multipart Upload a file
         String multipartKey = "multiPartKey";
         multipartUpload(bucket, multipartKey);
@@ -126,19 +147,7 @@ public class S3ObjectOperations {
         deleteBucket(bucket);
     }
  
- 
-    private static void createBucket(String bucket, Region region) {
-        s3.createBucket(CreateBucketRequest
-                .builder()
-                .bucket(bucket)
-                .createBucketConfiguration(
-                        CreateBucketConfiguration.builder()
-                                .locationConstraint(region.id())
-                                .build())
-                .build());
- 
-        System.out.println(bucket);
-    }
+
  
     private static void deleteBucket(String bucket) {
         DeleteBucketRequest deleteBucketRequest = DeleteBucketRequest.builder().bucket(bucket).build();
@@ -147,7 +156,8 @@ public class S3ObjectOperations {
  
     /**
      * Uploading an object to S3 in parts
-     */
+     *
+
     private static void multipartUpload(String bucketName, String key) throws IOException {
  
         int mb = 1024 * 1024;
@@ -187,4 +197,4 @@ public class S3ObjectOperations {
         new Random().nextBytes(b);
         return ByteBuffer.wrap(b);
     }
-}
+} */
