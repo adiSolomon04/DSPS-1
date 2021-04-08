@@ -1,29 +1,38 @@
 import com.google.gson.Gson;
-import jdk.nashorn.internal.runtime.regexp.joni.constants.internal.OPCode;
+//import jdk.nashorn.internal.runtime.regexp.joni.constants.internal.OPCode;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.Reader;
+import java.io.*;
 
 public class TestWorker {
-    public static void main(String[] args) {
-        Worker W = new Worker();
-        System.out.println(W.sentimentAnalysisHandler("These These are the best!!!! That's all there is to say."));
-        W.namedEntityRecognitionHandler("These These are the best!!!! That's all there is to say.");
+    public static void main(String[] args) throws IOException {
+        //Worker W = new Worker();
+        //System.out.println(W.sentimentAnalysisHandler("These These are the best!!!! That's all there is to say."));
+        //W.namedEntityRecognitionHandler("These These are the best!!!! That's all there is to say.");
 
-        //Start - Reading input json file
+        String Filename = "0689835604.txt";
+
+        //Start - Reading input json lined file
         Gson gson = new Gson();
         Reader reader = null;
-        try {
-            reader = new FileReader("../resources/B000EVOSE4.txt");//(args[0]);
-        } catch (FileNotFoundException e) {
-        }
+        BufferedReader inStream = null;
+        //File Reader
+        reader = new FileReader(Filename);//(args[0]);
         assert reader != null;
-        JsonClassRead[] gsonLoad = gson.fromJson(reader,JsonClassRead[].class);
-        //Finish - Reading input json file
+        inStream = new BufferedReader(reader);
+        //Read num of lines
+        int lines = 0;
+        while (inStream.readLine() != null) lines++;
+        inStream.close();
 
-        //Start - Reading from json class JsonClassRead
-        //Build the rannable Classes and create threads
+        //Read a line, parse it
+        reader = new FileReader(Filename);//(args[0]);
+        assert reader != null;
+        inStream = new BufferedReader(reader);
+        JsonClassRead[] gsonLoad = new JsonClassRead[lines];
+        for(int i=0; i<lines; i++)
+            gsonLoad[i] = gson.fromJson(inStream.readLine(), JsonClassRead.class);
+
+        //Reading data from json class JsonClassRead
         String title1 = gsonLoad[0].title;
         System.out.println(title1);
 

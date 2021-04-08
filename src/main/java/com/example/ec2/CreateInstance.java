@@ -23,13 +23,11 @@ package com.example.ec2;
 // snippet-start:[ec2.java2.create_instance.complete]
  
 // snippet-start:[ec2.java2.create_instance.import]
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.services.ec2.Ec2Client;
-import software.amazon.awssdk.services.ec2.model.InstanceType;
-import software.amazon.awssdk.services.ec2.model.RunInstancesRequest;
-import software.amazon.awssdk.services.ec2.model.RunInstancesResponse;
-import software.amazon.awssdk.services.ec2.model.Tag;
-import software.amazon.awssdk.services.ec2.model.CreateTagsRequest;
-import software.amazon.awssdk.services.ec2.model.Ec2Exception;
+import software.amazon.awssdk.services.ec2.model.*;
 
 import java.util.Base64;
 import software.amazon.awssdk.regions.Region;
@@ -54,19 +52,29 @@ public class CreateInstance {
         }
  
         String name = args[0];
-        String amiId = "ami-076515f20540e6e0b";
+        String amiId = "ami-5b41123e";
         // snippet-start:[ec2.java2.create_instance.main]
         //Ec2Client ec2 = Ec2Client.create();
+
+        DefaultCredentialsProvider CredsProvider = DefaultCredentialsProvider.create();
+        AwsBasicCredentials awsCreds = (AwsBasicCredentials) CredsProvider.resolveCredentials();
+
         Ec2Client ec2 = Ec2Client.builder()
                 .region(Region.US_EAST_1)
+                .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
                 .build();
- 
+
+        IamInstanceProfileSpecification role = IamInstanceProfileSpecification.builder()
+                .name("MELECH")
+                .build();
+
         RunInstancesRequest runRequest = RunInstancesRequest.builder()
                 .instanceType(InstanceType.T2_MICRO)
                 .imageId(amiId)
                 .maxCount(1)
                 .minCount(1)
-                .userData(Base64.getEncoder().encodeToString("".getBytes()))
+                .userData(Base64.getEncoder().encodeToString("#! /bin/bash".getBytes()))
+                .iamInstanceProfile(role)
                 .build();
  
         RunInstancesResponse response = ec2.runInstances(runRequest);
