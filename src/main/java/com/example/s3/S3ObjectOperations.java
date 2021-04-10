@@ -28,44 +28,54 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
- 
-public class S3ObjectOperations {
 
-    private static S3Client s3;
-    private static  String bucket_name = "dsps-s3-adieran-2021";
+/*
+ Every Local creates a S3ObjectOperations object
+ In order to upload to S3.
+ Create Bucket Func. doesnt work.
+ */
+
+public class S3ObjectOperations {
+    private S3Client s3;
+    private static String bucket_name = "dsps-s3-adieran-2021";
+    private String key;
+    private static String outputKey;
 
     /*
-    Need an open bucket on aws called as bucket_name
+    Need an open aws bucket
+    called as bucket_name
+
+    File upload and download with rand number
+    (there may be multiple Local applictions)  ** May move it to 'Local Application'
      */
-    public static void main(String[] args) throws IOException {
-        //Open s3 instance + new bucket
-        Region region = Region.US_EAST_1;
+    public S3ObjectOperations(Region region) {
         s3 = S3Client.builder().region(region).build();
-        //String CurrentDir = System.getProperty("user.dir");
-        //String bucket = "dsps-s3-adieran-2021";
-        //createBucket(bucket, region);
+        // Has one file only!!!
+        String rand_num = "" + System.currentTimeMillis();
+        key = "input_"+rand_num+".txt";
+        outputKey = "output_"+rand_num+".html";
+    }
 
-        String file_path = "B000EVOSE4.txt";
-        String key = "input_lined_json.txt";
-
-        // Put Object
+    public void uploadFile(String file_path){
         s3.putObject(PutObjectRequest.builder().bucket(bucket_name).key(key)
                         .build(),
                 RequestBody.fromFile(new File(file_path)));
-
-        // Get Object
-        s3.getObject(GetObjectRequest.builder().bucket(bucket_name).key(key).build(),
-                ResponseTransformer.toFile(new File("bin/" +"test"+ ".txt"))); //.html
-
-        // Delete Object
-        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(bucket_name).key(key).build();
-        s3.deleteObject(deleteObjectRequest);
-
-        deleteBucket(bucket_name);
-
     }
 
-    private static void createBucket(String bucket, Region region) {
+    /*
+    Uses outputKey to download the output file.
+     */
+    public void saveOutput(String file_path){
+        s3.getObject(GetObjectRequest.builder().bucket(bucket_name).key(outputKey).build(),
+                ResponseTransformer.toFile(new File(file_path))); //.html
+    }
+
+    public void deleteFile(){
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(bucket_name).key(key).build();
+        s3.deleteObject(deleteObjectRequest);
+    }
+
+    public void createBucket(String bucket, Region region) {
         s3.createBucket(CreateBucketRequest
                 .builder()
                 .bucket(bucket)
@@ -77,7 +87,7 @@ public class S3ObjectOperations {
 
         System.out.println(bucket);
     }
-    private static void deleteBucket(String bucket) {
+    public void deleteBucket(String bucket) {
         DeleteBucketRequest deleteBucketRequest = DeleteBucketRequest.builder().bucket(bucket).build();
         s3.deleteBucket(deleteBucketRequest);
     }

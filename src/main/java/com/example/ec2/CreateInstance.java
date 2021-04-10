@@ -25,20 +25,14 @@ import software.amazon.awssdk.regions.Region;
  */
 public class CreateInstance {
     //static final Logger logger = LoggerFactory.getLogger(CreateInstance.class);
-    public static void main(String[] args) {
+    static String amiId = "ami-5b41123e";
+    //static String name = "adisolo ec2";
 
-        String amiId = "ami-5b41123e";
-        String name = "adisolo ec2";
-        createInstance(name, amiId);
-
-        System.exit(1);
-
-        // snippet-end:[ec2.java2.create_instance.main]
-        System.out.println("Done!");
-    }
-
-    private static void createInstance(String name, String amiId) {
+    public static void createInstance(String name) {
         //To run this example, supply an instance name and AMI image id
+
+        if(ManagerExists())
+            return;
 
         Ec2Client ec2 = Ec2Client.builder()
                 .region(Region.US_EAST_1)
@@ -70,5 +64,9 @@ public class CreateInstance {
         System.out.printf(
                 "Successfully started EC2 instance %s based on AMI %s",
                 instanceId, amiId);
+    }
+
+    private static boolean ManagerExists() {
+        return true;
     }
 }
