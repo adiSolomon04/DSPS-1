@@ -5,9 +5,9 @@ import java.io.*;
 
 public class TestWorker {
     public static void main(String[] args) throws IOException {
-        //Worker W = new Worker();
-        //System.out.println(W.sentimentAnalysisHandler("These These are the best!!!! That's all there is to say."));
-        //W.namedEntityRecognitionHandler("These These are the best!!!! That's all there is to say.");
+        Worker W = new Worker();
+        System.out.println(W.sentimentAnalysisHandler("My dad and Ana loved it!"));
+        W.namedEntityRecognitionHandler("My dad and Ana loved it!");
 
         String Filename = "0689835604.txt";
 
@@ -47,7 +47,7 @@ public class TestWorker {
         public String id;
         public String link;
         public String title;
-        public String dest;
+        public String text;
         public Integer rating;
         public String author;
         public String date;

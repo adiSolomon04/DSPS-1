@@ -25,7 +25,10 @@ public class namedEntityRecognitionHandler {
         NERPipeline = new StanfordCoreNLP(props);
     }
 
-    public static void printEntities(String review){
+    public static String printEntities(String review){
+        StringBuilder list_of_the_named_entities = new StringBuilder("[");
+
+
         // create an empty Annotation just with the given text
         Annotation document = new Annotation(review);
         // run all Annotators on this text
@@ -41,9 +44,16 @@ public class namedEntityRecognitionHandler {
                 String word = token.get(TextAnnotation.class);
                 // this is the NER label of the token
                 String ne = token.get(NamedEntityTagAnnotation.class);
-                System.out.println("\t-" + word + ":" + ne);
+
+                if(ne.equals("PERSON") | ne.equals("LOCATION") | ne.equals("ORGANIZATION")) {  //todo: need to return the words? or just the entity
+                    System.out.println("\t-" + word + ":" + ne); //todo - delete print
+                    list_of_the_named_entities.append("(").append(word).append(":").append(ne).append("),");
+                }
             }
         }
+        //todo: delete the last comma
+        list_of_the_named_entities.append("]");
+        return list_of_the_named_entities.toString();
     }
 
 }
