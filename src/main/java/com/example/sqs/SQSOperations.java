@@ -11,6 +11,9 @@ public class SQSOperations {
     private SqsClient sqs;
     private String queueUrl;
     private ReceiveMessageRequest receiveRequest;
+    private static final String JOB_QUEUE_NAME = "jobsQueue";
+    private static final String ANSWER_QUEUE_NAME = "answerQueue";
+    private static final String LOCAL_QUEUE_NAME = "jobsQueue";
 
     public SQSOperations(String QUEUE_NAME) {
         this.QUEUE_NAME = QUEUE_NAME;

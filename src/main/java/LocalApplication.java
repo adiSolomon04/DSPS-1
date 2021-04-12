@@ -1,5 +1,5 @@
 import com.example.ec2.EC2Operations;
-//import com.example.s3.S3ObjectOperations;
+import com.example.s3.S3ObjectOperations;
 import software.amazon.awssdk.regions.Region;
 
 import java.util.ArrayList;
@@ -31,7 +31,6 @@ public class LocalApplication {
 
         //ec2Operations.deleteInstanceById(instanceIds);
         //ec2Operations.deleteInstanceByName(ec2Operations.ManagerName);
-
     }
 
 }
