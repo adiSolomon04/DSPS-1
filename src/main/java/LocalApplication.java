@@ -13,12 +13,9 @@ public class LocalApplication {
     private static Region region = Region.US_EAST_1;
 
     public static void main(String[] args) {
-        //S3ObjectOperations s3Operations = new S3ObjectOperations(region);
+        S3ObjectOperations s3Operations = new S3ObjectOperations(region);
         EC2Operations ec2Operations = new EC2Operations();
         //todo: test if opening multiple Local in 1 computer is working
-
-        //Upload file to S3
-        //s3.uploadFile("B000EVOSE4.txt");
 
         //Create Manager Instance
         List<String> instanceIds = new ArrayList<>();
@@ -27,6 +24,9 @@ public class LocalApplication {
             instanceIds.add(Id);
         }
 
+        //Upload file to S3
+        s3Operations.uploadFile("B000EVOSE4.txt");
+        //sqsOperations.
 
 
         //ec2Operations.deleteInstanceById(instanceIds);
