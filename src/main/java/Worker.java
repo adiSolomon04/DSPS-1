@@ -1,6 +1,7 @@
 import Recognition.namedEntityRecognitionHandler;
 import Recognition.sentimentAnalysisHandler;
 
+import com.example.sqs.SQSOperations;
 import com.google.gson.Gson;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsClient;
@@ -26,88 +27,69 @@ public class Worker {
 
     //public void MainWorkerClass(){
     public static void main(String[] args) {
-        Review review;
 
 
-        SqsClient sqs = SqsClient.builder().region(Region.US_EAST_1).build();
 
-        GetQueueUrlRequest getJobQueueRequest = GetQueueUrlRequest.builder()
-                .queueName(JOB_QUEUE_NAME)
-                .build();
-        String queueJobUrl = sqs.getQueueUrl(getJobQueueRequest).queueUrl();
-        ReceiveMessageRequest receiveRequest = ReceiveMessageRequest.builder()
-                .queueUrl(queueJobUrl)
-                .build();
+        SQSOperations JOB_SQS =  new SQSOperations(JOB_QUEUE_NAME);
+        JOB_SQS.getQueue();
 
+        SQSOperations ANSWER_SQS =  new SQSOperations(ANSWER_QUEUE_NAME);
+        ANSWER_SQS.getQueue();
 
-        GetQueueUrlRequest getAnswerQueueRequest = GetQueueUrlRequest.builder()
-                .queueName(ANSWER_QUEUE_NAME)
-                .build();
-        String queueAnswerUrl = sqs.getQueueUrl(getAnswerQueueRequest).queueUrl();
-        //ReceiveMessageRequest receiveRequest = ReceiveMessageRequest.builder()
-        //        .queueUrl(queueUrl)
-         //       .build();
 
         while(true){
             //get massage
-            List<Message> messages = sqs.receiveMessage(receiveRequest).messages();
+            List<Message> messages = JOB_SQS.getMessage();
             // do job
             //todo: job
             for (Message m : messages) {
                 //todo: make mini function and check!
                 System.out.println(m.body());
-                review = gson.fromJson(m.body(), Review.class);
-                int sentiment = sentimentAnalysisHandler(review.text);
-                String list_of_the_named_entities = namedEntityRecognitionHandler(review.text);
-
-                String result = "<p><a style=\"color:";
-                switch (sentiment){
-                    case 0:
-                        result = result+"DarkRed";
-                        break;
-                    case 1:
-                        result = result+"red";
-                        break;
-                    case 2:
-                        result = result+"black";
-                        break;
-                    case 3:
-                        result = result+"LightGreen";
-                        break;
-                    case 4:
-                        result = result+"DarkGreen";
-                        break;
-                    default:
-                        throw new IllegalStateException("Unexpected value: " + sentiment);
-                }
-
-                result = result +"\" href=\""+review.link+"\">"+review.link+"</a> | "+list_of_the_named_entities+" | " ;
-                if (review.rating<sentiment)
-                    result = result + "sarcasm.";
-                else
-                    result = result + "no sarcasm.";
-                result = result + "</p>";
+                String result = jsonToHTML(m.body());
                 //<span></span
                 //todo: return answer
-                SendMessageRequest send_msg_request = SendMessageRequest.builder()
-                        .queueUrl(queueAnswerUrl)
-                        .messageBody(result)
-                        .build();
-                sqs.sendMessage(send_msg_request);
-
+                ANSWER_SQS.sendMessage(result);
             }
 
             // delete messages from the queue
-            for (Message m : messages) {
-                DeleteMessageRequest deleteRequest = DeleteMessageRequest.builder()
-                        .queueUrl(queueJobUrl)
-                        .receiptHandle(m.receiptHandle())
-                        .build();
-                sqs.deleteMessage(deleteRequest);
-            }
-
+            JOB_SQS.deleteMessage(messages);
             //todo: fix - heartbeat time or max time, not busy wait-  long and short polling ? or die after end of message???
         }
+
+    }
+    private static String jsonToHTML(String Message){
+        Review review = gson.fromJson(Message, Review.class);
+        int sentiment = sentimentAnalysisHandler(review.text);
+        String list_of_the_named_entities = namedEntityRecognitionHandler(review.text);
+
+        String result = "<p><a style=\"color:";
+        switch (sentiment){
+            case 0:
+                result = result+"DarkRed";
+                break;
+            case 1:
+                result = result+"red";
+                break;
+            case 2:
+                result = result+"black";
+                break;
+            case 3:
+                result = result+"LightGreen";
+                break;
+            case 4:
+                result = result+"DarkGreen";
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + sentiment);
+        }
+
+        result = result +"\" href=\""+review.link+"\">"+review.link+"</a> | "+list_of_the_named_entities+" | " ;
+        if (review.rating<sentiment)
+            result = result + "sarcasm.";
+        else
+            result = result + "no sarcasm.";
+        result = result + "</p>";
+        return result;
 
     }
 
