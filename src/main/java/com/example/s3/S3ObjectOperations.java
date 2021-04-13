@@ -40,6 +40,7 @@ public class S3ObjectOperations {
     private static String bucket_name = "dsps-s3-adieran-2021";
     private String key;
     private static String outputKey;
+    private Region region = Region.US_EAST_1;
 
     /*
     Need an open aws bucket
@@ -47,8 +48,10 @@ public class S3ObjectOperations {
 
     File upload and download with rand number
     (there may be multiple Local applictions)  ** May move it to 'Local Application'
+
+    1. can one Local upload multiple files?
      */
-    public S3ObjectOperations(Region region) {
+    public S3ObjectOperations() {
         s3 = S3Client.builder().region(region).build();
         // Has one file only!!!
         String rand_num = "" + System.currentTimeMillis();
@@ -65,8 +68,13 @@ public class S3ObjectOperations {
     /*
     Uses outputKey to download the output file.
      */
-    public void saveOutput(String file_path){
+    public void downloadFileHtml(String file_path){
         s3.getObject(GetObjectRequest.builder().bucket(bucket_name).key(outputKey).build(),
+                ResponseTransformer.toFile(new File(file_path))); //.html
+    }
+
+    public void downloadFileJson(String file_path, String key){
+        s3.getObject(GetObjectRequest.builder().bucket(bucket_name).key(key).build(),
                 ResponseTransformer.toFile(new File(file_path))); //.html
     }
 

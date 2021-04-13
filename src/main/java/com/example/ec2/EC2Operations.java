@@ -32,7 +32,7 @@ public class EC2Operations {
     private Ec2Client ec2;
     private Integer runningCode = 16;
     private Integer pendingCode = 0;
-    public static String ManagerName = "Manager";
+    public static final String ManagerName = "Manager";
     //static String name = "adisolo ec2";
 
     public EC2Operations(){
@@ -40,8 +40,10 @@ public class EC2Operations {
                 .region(Region.US_EAST_1)
                 .build();
     }
-
-    public String createInstance(String name) {
+    public String createInstance(String name){
+        return createInstance(name, "");
+    }
+    public String createInstance(String name, String command) {
         //To run this example, supply an instance name and AMI image id
 
         RunInstancesRequest runRequest = RunInstancesRequest.builder()
@@ -49,7 +51,7 @@ public class EC2Operations {
                 .imageId(amiId)
                 .maxCount(1)
                 .minCount(1)
-                .userData(Base64.getEncoder().encodeToString("hi there".getBytes()))
+                .userData(Base64.getEncoder().encodeToString(command.getBytes()))
                 .build();
 
         RunInstancesResponse response = ec2.runInstances(runRequest);
@@ -67,10 +69,12 @@ public class EC2Operations {
                 .build();
 
         ec2.createTags(tagRequest);
+        /*
         System.out.printf(
                 "Successfully started EC2 instance %s based on AMI %s",
                 instanceId, amiId);
 
+         */
         return instanceId;
     }
 
