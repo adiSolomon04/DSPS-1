@@ -73,6 +73,9 @@ public class SendAndReceiveJsonToWorker {
          */
         while (messages.size() != 0) {
             for (Message m : messages) {
+                HTML = HTML +"\n"+ m.body();
+
+                /*
                 ans = gson.fromJson(m.body(), Answer.class);
                 //check if answer was already taken.
                 if(!fileJobs[ans.jobNum]){
@@ -87,9 +90,10 @@ public class SendAndReceiveJsonToWorker {
                         //sqsOperationsOut.sendMessage("file address/key");
                         //s3 - upload file
 
-                         */
+
                     }
                 }
+            */
             }
 
             // delete messages from the queue

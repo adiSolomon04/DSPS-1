@@ -37,7 +37,7 @@ import software.amazon.awssdk.core.sync.ResponseTransformer;
 
 public class S3ObjectOperations {
     private S3Client s3;
-    private static String bucket_name = "dsps-s3-adieran-2021";
+    private static String bucket_name = "dsps-s3-adieran2-2021";
     private String key;
     private static String outputKey;
     private Region region = Region.US_EAST_1;
@@ -98,6 +98,10 @@ public class S3ObjectOperations {
     public void deleteBucket(String bucket) {
         DeleteBucketRequest deleteBucketRequest = DeleteBucketRequest.builder().bucket(bucket).build();
         s3.deleteBucket(deleteBucketRequest);
+    }
+
+    public String getKey() {
+        return key;
     }
 }
 

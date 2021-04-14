@@ -28,7 +28,8 @@ import software.amazon.awssdk.regions.Region;
  */
 public class EC2Operations {
     //static final Logger logger = LoggerFactory.getLogger(CreateInstance.class);
-    private static String amiId = "ami-5b41123e";
+    //private static String amiId = "ami-5b41123e";
+    private static String amiId = "ami-079766f1a081c89d4";
     private Ec2Client ec2;
     private Integer runningCode = 16;
     private Integer pendingCode = 0;
@@ -46,13 +47,20 @@ public class EC2Operations {
     public String createInstance(String name, String command) {
         //To run this example, supply an instance name and AMI image id
 
+        IamInstanceProfileSpecification role = IamInstanceProfileSpecification.builder()
+                .name("WorkerAndMennager")
+                .build();
+
         RunInstancesRequest runRequest = RunInstancesRequest.builder()
                 .instanceType(InstanceType.T2_MICRO)
                 .imageId(amiId)
                 .maxCount(1)
                 .minCount(1)
                 .userData(Base64.getEncoder().encodeToString(command.getBytes()))
+                .iamInstanceProfile(role)
                 .build();
+
+
 
         RunInstancesResponse response = ec2.runInstances(runRequest);
 

@@ -1,3 +1,9 @@
+public class SendAndReceiveJsonToWorker {
+
+    public static void main(String[] args) {
+
+    }
+}/*
 import com.example.sqs.SQSOperations;
 import jdk.nashorn.internal.scripts.JO;
 import software.amazon.awssdk.regions.Region;
@@ -11,9 +17,16 @@ import java.io.*;
 import java.util.List;
 
 
+
+
 public class SendAndReceiveJsonToWorker {
     private static final String JOB_QUEUE_NAME = "jobsQueue";
     private static final String ANSWER_QUEUE_NAME = "answerQueue";
+
+    public static void main(String[] args) {
+        System.out.println("Hello World");
+    }
+}
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
@@ -90,7 +103,7 @@ public class SendAndReceiveJsonToWorker {
                 .build();
         sqs.sendMessageBatch(send_batch_request);
 
-*/
-    }
 
-}
+    }
+*/
+

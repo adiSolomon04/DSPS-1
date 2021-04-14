@@ -12,16 +12,17 @@ Open s3 Bucket name: "dsps-s3-adieran-2021"
  */
 public class LocalApplication {
 
-    private SQSOperations sqsOperationsIn;
-    private SQSOperations sqsOperationsOut;
+    private static SQSOperations sqsOperationsIn;
+    private static SQSOperations sqsOperationsOut;
     //private static Region region = Region.US_EAST_1;
 
 
-    public void main(String[] args) {
+    public static void main(String[] args) {
         S3ObjectOperations s3Operations = new S3ObjectOperations();
         EC2Operations ec2Operations = new EC2Operations();
         //todo: test if opening multiple Local in 1 computer is working
 
+        /*
         //Create Manager Instance
         List<String> instanceIds = new ArrayList<>();
         if(!ec2Operations.ManagerExists()) {
@@ -30,10 +31,16 @@ public class LocalApplication {
             sqsOperationsIn = new SQSOperations(SQSOperations.IN_QUEUE);
             sqsOperationsIn.createSQS();
             sqsOperationsIn.getQueue();
-        }
+        }*/
         //Upload file to S3
         s3Operations.uploadFile("B000EVOSE4.txt");
-        sqsOperationsIn.sendMessage("B000EVOSE4.txt");
+
+        //todo delete 3 rows!
+        sqsOperationsIn = new SQSOperations(SQSOperations.IN_QUEUE);
+        sqsOperationsIn.createSQS();
+        sqsOperationsIn.getQueue();
+
+        sqsOperationsIn.sendMessage(s3Operations.getKey());
         /*
         while(true) {
             // Enter data using BufferReader
