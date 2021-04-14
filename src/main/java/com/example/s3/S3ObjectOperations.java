@@ -99,6 +99,10 @@ public class S3ObjectOperations {
         DeleteBucketRequest deleteBucketRequest = DeleteBucketRequest.builder().bucket(bucket).build();
         s3.deleteBucket(deleteBucketRequest);
     }
+
+    public String getKey() {
+        return key;
+    }
 }
 
     /*

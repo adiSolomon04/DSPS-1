@@ -10,24 +10,24 @@ import java.util.List;
 
 public class Manager {
 
-    private Integer n=10;
-    private Integer numInstances = 0;
-    private SQSOperations sqsOperationsIn;
-    private SQSOperations sqsOperationsOut;
-    private SQSOperations sqsOperationsJobs;
-    private SQSOperations sqsOperationsAnswers;
-    private S3ObjectOperations s3Operations;
-    private EC2Operations ec2Operations;
-    private SendAndReceiveJsonToWorker jsonToWorker;
-    private List<String> workerIds;
+    private static Integer n=10;
+    private static Integer numInstances = 0;
+    private static SQSOperations sqsOperationsIn;
+    private static SQSOperations sqsOperationsOut;
+    private static SQSOperations sqsOperationsJobs;
+    private static SQSOperations sqsOperationsAnswers;
+    private static S3ObjectOperations s3Operations;
+    private static EC2Operations ec2Operations;
+    private static SendAndReceiveJsonToWorker jsonToWorker;
+    private static List<String> workerIds;
     //todo: create worker.jar
-    private final String workerCommand = "#! /bin/bash\njava -jar worker.jar\n";
+    private static final String workerCommand = "#! /bin/bash\njava -jar worker.jar\n";
 
-    private boolean Terminate = false;
+    private static boolean Terminate = false;
 
 
 
-    public void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
 
         /*
         //Get n
@@ -77,14 +77,17 @@ public class Manager {
                 List<Message> Messages = sqsOperationsIn.getMessage();
                 for (Message message : Messages) {
                     String Body = message.body();
-                    s3Operations.downloadFileJson("inputFiles/" + Body, Body);
-                    jsonToWorker.sendJobs("inputFiles/" + Body, sqsOperationsJobs);
+
+                    s3Operations.downloadFileJson(Body, Body); //"inputFiles/"
+                    jsonToWorker.sendJobs(Body, sqsOperationsJobs);//"inputFiles/"/*
                     //Check if terminate
                     if (Body.substring(Body.length() - "[terminate]".length() - 1, Body.length() - 1).equals("[terminate]")) {
                         Terminate = true;
                         break;
                     }
+
                 }
+                workerIds.add(ec2Operations.createInstance("Worker", workerCommand));
 
                 //open new Instances if needed
                 int newInstNum = sqsOperationsJobs.getMessage().size() / n;
@@ -97,6 +100,7 @@ public class Manager {
 
             jsonToWorker.collectAnswers(sqsOperationsAnswers);
             String HTML = jsonToWorker.getHTML();
+            System.out.println(HTML);
         }
 
 

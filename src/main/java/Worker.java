@@ -45,10 +45,10 @@ public class Worker {
             for (Message m : messages) {
                 //todo: make mini function and check!
                 System.out.println(m.body());
-                String result = jsonToHTML(m.body());
+                String ans = jsonToHTML(m.body());
                 //<span></span
                 //todo: return answer
-                ANSWER_SQS.sendMessage(result);
+                ANSWER_SQS.sendMessage(ans);
             }
 
             // delete messages from the queue
@@ -58,7 +58,7 @@ public class Worker {
 
     }
     private static String jsonToHTML(String Message){
-        Review review = gson.fromJson(Message, Review.class);
+        SendAndReceiveJsonToWorker.Review review = gson.fromJson(Message, SendAndReceiveJsonToWorker.Review.class);
         int sentiment = sentimentAnalysisHandler(review.text);
         String list_of_the_named_entities = namedEntityRecognitionHandler(review.text);
 
@@ -89,18 +89,22 @@ public class Worker {
         else
             result = result + "no sarcasm.";
         result = result + "</p>";
-        return result;
+        SendAndReceiveJsonToWorker.Answer ans = new SendAndReceiveJsonToWorker.Answer();
+        ans.body = result;
+        ans.jobNum = review.jobNum;
+        ans.jobFile = review.jobFile;
+        return gson.toJson(ans);
 
     }
-
-
-
+    /*
     public static class Review{
         public String id;
         public String link;
         public String text;
         public Integer rating;
     }
+
+     */
 
 }
 

@@ -46,6 +46,7 @@ public class EC2Operations {
     public String createInstance(String name, String command) {
         //To run this example, supply an instance name and AMI image id
 
+
         RunInstancesRequest runRequest = RunInstancesRequest.builder()
                 .instanceType(InstanceType.T2_MICRO)
                 .imageId(amiId)
