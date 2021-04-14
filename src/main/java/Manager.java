@@ -77,9 +77,9 @@ public class Manager {
                 List<Message> Messages = sqsOperationsIn.getMessage();
                 for (Message message : Messages) {
                     String Body = message.body();
-                    Body = "input_1618352293315.txt";
-                    s3Operations.downloadFileJson(Body, Body);
-                    jsonToWorker.sendJobs(Body, sqsOperationsJobs);
+
+                    s3Operations.downloadFileJson(Body, Body); //"inputFiles/"
+                    jsonToWorker.sendJobs(Body, sqsOperationsJobs);//"inputFiles/"/*
                     //Check if terminate
                     if (Body.substring(Body.length() - "[terminate]".length() - 1, Body.length() - 1).equals("[terminate]")) {
                         Terminate = true;

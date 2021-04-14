@@ -127,7 +127,7 @@ public class SendAndReceiveJsonToWorker {
         public String jobFile;
     }
 
-    public class Answer {
+    public static class Answer {
         public Integer jobNum;
         public String jobFile;
         public String body;

@@ -51,6 +51,7 @@ public class EC2Operations {
                 .name("WorkerAndMennager")
                 .build();
 
+
         RunInstancesRequest runRequest = RunInstancesRequest.builder()
                 .instanceType(InstanceType.T2_MICRO)
                 .imageId(amiId)
@@ -59,8 +60,6 @@ public class EC2Operations {
                 .userData(Base64.getEncoder().encodeToString(command.getBytes()))
                 .iamInstanceProfile(role)
                 .build();
-
-
 
         RunInstancesResponse response = ec2.runInstances(runRequest);
 
