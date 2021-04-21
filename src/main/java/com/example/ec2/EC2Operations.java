@@ -29,14 +29,15 @@ import software.amazon.awssdk.regions.Region;
 public class EC2Operations {
     //static final Logger logger = LoggerFactory.getLogger(CreateInstance.class);
     //private static String amiId = "ami-5b41123e";
-    private static String amiId = "ami-079766f1a081c89d4";
+    private String amiId;
     private Ec2Client ec2;
     private Integer runningCode = 16;
     private Integer pendingCode = 0;
     public static final String ManagerName = "Manager";
     //static String name = "adisolo ec2";
 
-    public EC2Operations(){
+    public EC2Operations(String amiId){
+        this.amiId = amiId;
         ec2 = Ec2Client.builder()
                 .region(Region.US_EAST_1)
                 .build();
@@ -47,13 +48,17 @@ public class EC2Operations {
     public String createInstance(String name, String command) {
         //To run this example, supply an instance name and AMI image id
 
+        /*
+        Iam will have AdministratorFullAccess
+         */
+
         IamInstanceProfileSpecification role = IamInstanceProfileSpecification.builder()
                 .name("WorkerAndMennager")
                 .build();
 
 
         RunInstancesRequest runRequest = RunInstancesRequest.builder()
-                .instanceType(InstanceType.T2_MICRO)
+                .instanceType(InstanceType.T2_MEDIUM)
                 .imageId(amiId)
                 .maxCount(1)
                 .minCount(1)

@@ -9,50 +9,50 @@ import java.util.List;
 
 /*
 Open s3 Bucket name: "dsps-s3-adieran-2021"
+Local opens default OUT_Queue and In_Queue if manager does not exist,
+Starts manager and sends a file in lined Json format.
  */
 public class LocalApplication {
 
+    private static final String managerCommand = "#! /bin/bash\ncd /home/ec2-user\nmkdir LOL\njava -jar Manager.jar"; // add \n
+    /*
+    Update ami after creating your image
+     */
+    private static final String amiId = "ami-024fffd05e677c367";
+    private static String managerId = "";
+    private static String n = "50";
+
     private static SQSOperations sqsOperationsIn;
     private static SQSOperations sqsOperationsOut;
-    //private static Region region = Region.US_EAST_1;
 
 
     public static void main(String[] args) {
         S3ObjectOperations s3Operations = new S3ObjectOperations();
-        EC2Operations ec2Operations = new EC2Operations();
+        EC2Operations ec2Operations = new EC2Operations(amiId);
         //todo: test if opening multiple Local in 1 computer is working
 
-        /*
         //Create Manager Instance
-        List<String> instanceIds = new ArrayList<>();
+        //List<String> instanceIds = new ArrayList<>();
+        sqsOperationsIn = new SQSOperations(SQSOperations.IN_QUEUE);
+        sqsOperationsOut = new SQSOperations(SQSOperations.OUT_QUEUE);
         if(!ec2Operations.ManagerExists()) {
-            String Id = ec2Operations.createInstance(ec2Operations.ManagerName);
-            instanceIds.add(Id);
-            sqsOperationsIn = new SQSOperations(SQSOperations.IN_QUEUE);
+            managerId = ec2Operations.createInstance(ec2Operations.ManagerName, managerCommand+" "+n+" "+amiId+"\n");
             sqsOperationsIn.createSQS();
-            sqsOperationsIn.getQueue();
-        }*/
+            sqsOperationsOut.createSQS();
+        }
+        sqsOperationsIn.getQueue();
+        sqsOperationsOut.getQueue();
+
         //Upload file to S3
         s3Operations.uploadFile("B000EVOSE4.txt");
-
-        //todo delete 3 rows!
-        sqsOperationsIn = new SQSOperations(SQSOperations.IN_QUEUE);
-        sqsOperationsIn.createSQS();
-        sqsOperationsIn.getQueue();
-
-        sqsOperationsIn.sendMessage(s3Operations.getKey());
-        /*
-        while(true) {
-            // Enter data using BufferReader
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(System.in));
-
-            // Reading data using readLine
-            String name = reader.readLine();
-
+        List<Message> Messages = sqsOperationsIn.getMessage();
+        if((Messages.size()!=0)&& Messages.get(0).body().startsWith("Err")){
+            System.out.println(sqsOperationsOut.getMessage().get(0).body());
+            System.exit(1);
         }
-         */
-        sqsOperationsOut = new SQSOperations(SQSOperations.OUT_QUEUE);
+
+        //todo:local opens answer queue before putting message in QUEUE to manager
+        sqsOperationsIn.sendMessage(s3Operations.getKey());
         List<Message> messages = sqsOperationsOut.getMessage();
         while(messages.isEmpty()){
             try {
@@ -62,7 +62,7 @@ public class LocalApplication {
             }
             messages = sqsOperationsOut.getMessage();
         }
-        s3Operations.downloadFileHtml("bin/"+messages.get(0).body()+".txt");
+        s3Operations.downloadFileHtml("bin/"+messages.get(0).body()+".html");
 
         System.out.println("Downloaded file\t" + messages.get(0).body());
 

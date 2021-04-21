@@ -37,7 +37,8 @@ import software.amazon.awssdk.core.sync.ResponseTransformer;
 
 public class S3ObjectOperations {
     private S3Client s3;
-    private static String bucket_name = "dsps-s3-adieran2-2021";
+    //
+    private static String bucket_name = "dsps-s3-adieran-2021";
     private String key;
     private static String outputKey;
     private Region region = Region.US_EAST_1;
@@ -56,13 +57,26 @@ public class S3ObjectOperations {
         // Has one file only!!!
         String rand_num = "" + System.currentTimeMillis();
         key = "input_"+rand_num+".txt";
-        outputKey = "output_"+rand_num+".html";
+        outputKey = "Output_";//"output_"+rand_num+".html";
     }
 
+    /*
+    Upload file from local to s3
+     */
     public void uploadFile(String file_path){
         s3.putObject(PutObjectRequest.builder().bucket(bucket_name).key(key)
                         .build(),
                 RequestBody.fromFile(new File(file_path)));
+    }
+
+    /*
+    upload file from Manager to s3
+    todo: change outputKey by file
+     */
+    public void uploadFileString(String content){
+        s3.putObject(PutObjectRequest.builder().bucket(bucket_name).key(outputKey)
+                        .build(),
+                RequestBody.fromString(content));
     }
 
     /*
@@ -103,6 +117,8 @@ public class S3ObjectOperations {
     public String getKey() {
         return key;
     }
+
+    public String getOutKey() { return outputKey;  }
 }
 
     /*

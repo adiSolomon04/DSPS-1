@@ -14,8 +14,8 @@ public class Worker {
     static Recognition.namedEntityRecognitionHandler namedEntityRecognitionHandler = new namedEntityRecognitionHandler();
     static Gson gson = new Gson();  //json
 
-    private static final String JOB_QUEUE_NAME = "jobsQueue";
-    private static final String ANSWER_QUEUE_NAME = "answerQueue";
+    //private static final String JOB_QUEUE_NAME = "jobsQueue";
+    //private static final String ANSWER_QUEUE_NAME = "answerQueue";
 
 
     public static int sentimentAnalysisHandler(String review) {
@@ -30,10 +30,10 @@ public class Worker {
 
 
 
-        SQSOperations JOB_SQS =  new SQSOperations(JOB_QUEUE_NAME);
+        SQSOperations JOB_SQS =  new SQSOperations(SQSOperations.JOB_QUEUE);
         JOB_SQS.getQueue();
 
-        SQSOperations ANSWER_SQS =  new SQSOperations(ANSWER_QUEUE_NAME);
+        SQSOperations ANSWER_SQS =  new SQSOperations(SQSOperations.ANSWER_QUEUE);
         ANSWER_SQS.getQueue();
 
 
@@ -44,7 +44,7 @@ public class Worker {
             //todo: job
             for (Message m : messages) {
                 //todo: make mini function and check!
-                System.out.println(m.body());
+                //System.out.println(m.body());
                 String ans = jsonToHTML(m.body());
                 //<span></span
                 //todo: return answer

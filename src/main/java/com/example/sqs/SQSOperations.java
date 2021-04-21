@@ -11,10 +11,10 @@ public class SQSOperations {
     private SqsClient sqs;
     private String queueUrl;
     private ReceiveMessageRequest receiveRequest;
-    public static final String JOB_QUEUE= "jobsQueue";
-    public static final String ANSWER_QUEUE = "answerQueue";
-    public static final String IN_QUEUE = "Input_QUEUE";
-    public static final String OUT_QUEUE = "Input_QUEUE";
+    public static final String JOB_QUEUE= "Jobs_Queue";
+    public static final String ANSWER_QUEUE = "Answer_Queue";
+    public static final String IN_QUEUE = "Input_Queue";
+    public static final String OUT_QUEUE = "Output_Queue";
 
     public SQSOperations(String QUEUE_NAME) {
         this.QUEUE_NAME = QUEUE_NAME;

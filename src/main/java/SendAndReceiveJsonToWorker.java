@@ -24,6 +24,10 @@ public class SendAndReceiveJsonToWorker {
     }
 
     public void sendJobs(String Filename, SQSOperations JOB_SQS) throws IOException {
+        BufferedWriter myWriter = new BufferedWriter(new FileWriter("fileName.txt", true));
+        myWriter.write("\nstart jobs send-------------------\n");
+        myWriter.flush();
+
         //File Reader
         try {
             reader = new FileReader(Filename);//(args[0]);
@@ -47,13 +51,18 @@ public class SendAndReceiveJsonToWorker {
             gsonLoad[i] = gson.fromJson(inStream.readLine(), JsonClassRead.class);
 
         int jobCount=0;
-        for (int i = 0; i < lines; i++)
+        for (int i = 0; i < lines; i++) {
             for (int j = 0; j < gsonLoad[i].reviews.length; j++) {
-                gsonLoad[i].reviews[j].jobNum=jobCount;
-                gsonLoad[i].reviews[j].jobFile=Filename;
+                gsonLoad[i].reviews[j].jobNum = jobCount;
+                gsonLoad[i].reviews[j].jobFile = Filename;
                 JOB_SQS.sendMessage(gson.toJson(gsonLoad[i].reviews[j]));
                 jobCount++;
             }
+            myWriter.write("job line"+i+"\n");
+            myWriter.flush();
+        }
+        myWriter.write("end jobs send-------------------\n");
+        myWriter.flush();
         fileJobs = new boolean[jobCount];
         //assign number of jobs to Left
         fileJobsLeft = jobCount--;
@@ -71,11 +80,10 @@ public class SendAndReceiveJsonToWorker {
         /*
         Exit if there are input files.
          */
-        while (messages.size() != 0) {
+        while (fileJobsLeft != 0) {
             for (Message m : messages) {
-                HTML = HTML +"\n"+ m.body();
+                //HTML = HTML +"\n"+ m.body();
 
-                /*
                 ans = gson.fromJson(m.body(), Answer.class);
                 //check if answer was already taken.
                 if(!fileJobs[ans.jobNum]){
@@ -84,16 +92,15 @@ public class SendAndReceiveJsonToWorker {
                     fileJobs[ans.jobNum] = true;
                     if(fileJobsLeft==0) {
                         break;
-                        /*
-                        todo: (CAN BE IN Manager maybe)
-                        todo:s3 upload file, sqs write message to local
+
+                        //todo: (CAN BE IN Manager maybe)
+                        //todo:s3 upload file, sqs write message to local
                         //sqsOperationsOut.sendMessage("file address/key");
                         //s3 - upload file
 
 
                     }
                 }
-            */
             }
 
             // delete messages from the queue
