@@ -38,8 +38,8 @@ public class Worker {
         SQSOperations JOB_SQS =  new SQSOperations(SQSOperations.JOB_QUEUE);
         JOB_SQS.getQueue();
 
-        SQSOperations ANSWER_SQS =  new SQSOperations(SQSOperations.ANSWER_QUEUE);
-        ANSWER_SQS.getQueue();
+        //SQSOperations ANSWER_SQS =  new SQSOperations(SQSOperations.ANSWER_QUEUE);
+        //ANSWER_SQS.getQueue();
 
 
         while(true){

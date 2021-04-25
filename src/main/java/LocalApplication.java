@@ -19,7 +19,7 @@ public class LocalApplication {
     /*
     Update ami after creating your image
      */
-    private static final String amiId = "ami-024fffd05e677c367";
+    private static final String amiId = "ami-0edbc3135b3675788";
     private static String managerId = "";
     private static String n = "50";
 
@@ -29,22 +29,24 @@ public class LocalApplication {
 
 // java  -jar yourjar.jar inputFileName1... inputFileNameN n [terminate]
     public static void main(String[] args) {
-        Integer n;
+        String n;
         int fileNum = 0;
         //Input
         if (args.length < 2) {
             System.out.println("Not enough Args");
             System.exit(1);
         }
-        try {
-            if (args[args.length].equals("[terminate]")) {
-                n = Integer.parseInt(args[args.length - 2]);
-                fileNum = args.length - 2;
-            } else {
-                n = Integer.parseInt(args[args.length - 1]);
-                fileNum = args.length - 1;
-            }
 
+        if (args[args.length-1].equals("[terminate]")) {
+            n = args[args.length - 2];
+            fileNum = args.length - 2;
+        } else {
+            n = args[args.length - 1];
+            fileNum = args.length - 1;
+        }
+
+        try {
+            Integer.parseInt(n);
         } catch (NumberFormatException nfe) {
             System.out.println("n not inserted");
             System.exit(1);
@@ -58,7 +60,7 @@ public class LocalApplication {
         sqsOperationsIn = new SQSOperations(SQSOperations.IN_QUEUE);
         sqsOperationsOut = new SQSOperations(SQSOperations.OUT_QUEUE);
         if (!ec2Operations.ManagerExists()) {
-            managerId = ec2Operations.createInstance(ec2Operations.ManagerName, managerCommand + " " + n + " " + amiId + "\n");
+            //managerId = ec2Operations.createInstance(ec2Operations.ManagerName, managerCommand + " " + n + " " + amiId + "\n");
             sqsOperationsIn.createSQS();
             sqsOperationsOut.createSQS();
         }
@@ -95,11 +97,13 @@ public class LocalApplication {
             }
             for(Message message : messages){
                 String ID = getID(message.body());
-                String fileName = fileNames.get(ID);
+                String fileName = fileNames.remove(ID);
                 s3Operations.downloadFileJson("bin/" + fileName + ".html", message.body());
                 System.out.println("Downloaded answer to file\t" + fileName+"\n");
             }
             sqsOperationsOut.deleteMessage(messages);
+            messages = sqsOperationsOut.getMessage();
+
         }
     }
 

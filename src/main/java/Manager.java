@@ -95,8 +95,11 @@ public class Manager {
                 for (Message message : Messages) {
                     myWriter.write("file\n");
                     String Body = message.body();
-
                     s3Operations.downloadFileJson(Body, Body); //"inputFiles/"
+                    SQSOperations sqsOperationsAnswers = new SQSOperations(SQSOperations.ANSWER_QUEUE + '_' + Body);
+                    sqsOperationsAnswers.createSQS();
+                    sqsOperationsAnswers.getQueue();
+
                     //Json
                     SendAndReceiveJsonToWorker jsonToWorker = new SendAndReceiveJsonToWorker();
                     jsonToWorker.sendJobs(Body, sqsOperationsJobs);//"inputFiles/"/*
@@ -112,18 +115,16 @@ public class Manager {
                         for (int i = 0; i < newInstNum - numInstances; i++) {
                             myWriter.write("before open worker");
                             myWriter.flush();
-                            workerIds.add(ec2Operations.createInstance("Worker", workerCommand));
+                           // workerIds.add(ec2Operations.createInstance("Worker", workerCommand));
                             myWriter.write("after open worker");
                             myWriter.flush();
                         }
                     }
 
-                    SQSOperations sqsOperationsAnswers = new SQSOperations(SQSOperations.ANSWER_QUEUE + '_' + Body);
-                    sqsOperationsAnswers.createSQS();
-                    sqsOperationsAnswers.getQueue();
-
                     executorGetAnswer.addMission(jsonToWorker,sqsOperationsAnswers);
                     //jsonToWorker.collectAnswers(sqsOperationsAnswers);
+                    sqsOperationsIn.deleteMessage(Messages);
+
                 }
 
             }

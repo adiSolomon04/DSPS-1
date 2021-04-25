@@ -40,11 +40,11 @@ public class executorList {
                     e.printStackTrace();
                 }
                 String HTML = sendAndReceiveJsonToWorker.getHTML();
-                if(!HTML.isEmpty()) {
+                //if(!HTML.isEmpty()) {
 
                     s3Operations.uploadFileString(HTMLHeader + HTML + HTMLFooter, sendAndReceiveJsonToWorker.getOutputKey());
                     sqsOperationsOut.sendMessage(sendAndReceiveJsonToWorker.getOutputKey());
-                }
+               // }
 
             }
         }
