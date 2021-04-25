@@ -13,15 +13,18 @@ import java.util.List;
 public class Manager {
 
     private static Integer n=10;
+    private static Integer k=10;
+
     private static Integer numInstances = 0;
     private static SQSOperations sqsOperationsIn;
     private static SQSOperations sqsOperationsOut;
     private static SQSOperations sqsOperationsJobs;
-    private static SQSOperations sqsOperationsAnswers;
+    //private static SQSOperations sqsOperationsAnswers;
     private static S3ObjectOperations s3Operations;
     private static EC2Operations ec2Operations;
-    private static SendAndReceiveJsonToWorker jsonToWorker;
+    //private static SendAndReceiveJsonToWorker jsonToWorker;
     private static List<String> workerIds;
+    private static executorList executorGetAnswer = new executorList(k);
     //todo: create worker.jar
     private static final String workerCommand = "#! /bin/bash\ncd /home/ec2-user\nmkdir LOL\njava -jar Worker.jar\n\n"; //-Xmx550m
     private static final String HTMLHeader = "<!DOCTYPE html><html><head><h1>AWS Project Adi & Eran</h1>" +
@@ -72,15 +75,10 @@ public class Manager {
         sqsOperationsJobs.createSQS();
         sqsOperationsJobs.getQueue();
 
-        sqsOperationsAnswers = new SQSOperations(SQSOperations.ANSWER_QUEUE);
-        sqsOperationsAnswers.createSQS();
-        sqsOperationsAnswers.getQueue();
         //S3
         s3Operations = new S3ObjectOperations();
         //EC2
         ec2Operations = new EC2Operations(amiId);
-        //Json
-        jsonToWorker = new SendAndReceiveJsonToWorker();
 
         workerIds = new ArrayList<>();
 
@@ -99,6 +97,8 @@ public class Manager {
                     String Body = message.body();
 
                     s3Operations.downloadFileJson(Body, Body); //"inputFiles/"
+                    //Json
+                    SendAndReceiveJsonToWorker jsonToWorker = new SendAndReceiveJsonToWorker();
                     jsonToWorker.sendJobs(Body, sqsOperationsJobs);//"inputFiles/"/*
                     myWriter.write(Body+"\t");
                     //Check if terminate
@@ -106,28 +106,34 @@ public class Manager {
                         Terminate = true;
                         break;
                     }
-                }
-
-                //open new Instances if needed
-                int newInstNum = (int)(Math.ceil(sqsOperationsJobs.getMessage().size() / (1.0*n)));
-                if (numInstances < newInstNum) {
-                    for (int i = 0; i < newInstNum - numInstances; i++) {
-                        myWriter.write("before open worker");
-                        myWriter.flush();
-                        workerIds.add(ec2Operations.createInstance("Worker", workerCommand));
-                        myWriter.write("after open worker");
-                        myWriter.flush();
+                    //open new Instances if needed
+                    int newInstNum = (int)(Math.ceil(sqsOperationsJobs.getMessage().size() / (1.0*n)));
+                    if (numInstances < newInstNum) {
+                        for (int i = 0; i < newInstNum - numInstances; i++) {
+                            myWriter.write("before open worker");
+                            myWriter.flush();
+                            workerIds.add(ec2Operations.createInstance("Worker", workerCommand));
+                            myWriter.write("after open worker");
+                            myWriter.flush();
+                        }
                     }
-                }
-            }
 
-            jsonToWorker.collectAnswers(sqsOperationsAnswers);
-            String HTML = jsonToWorker.getHTML();
+                    SQSOperations sqsOperationsAnswers = new SQSOperations(SQSOperations.ANSWER_QUEUE + '_' + Body);
+                    sqsOperationsAnswers.createSQS();
+                    sqsOperationsAnswers.getQueue();
+
+                    executorGetAnswer.addMission(jsonToWorker,sqsOperationsAnswers);
+                    //jsonToWorker.collectAnswers(sqsOperationsAnswers);
+                }
+
+            }
+            executorGetAnswer.checkFuture(s3Operations,HTMLHeader,HTMLFooter,sqsOperationsOut);
+            /*String HTML = jsonToWorker.getHTML();
             if(!HTML.isEmpty()) {
                 s3Operations.uploadFileString(HTMLHeader + HTML + HTMLFooter);
                 sqsOperationsOut.sendMessage(s3Operations.getOutKey());
             }
-            break; //for one File!!!!!!!!!!!!!
+            break; //for one File!!!!!!!!!!!!!*/
         }
 
 

@@ -8,11 +8,16 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.*;
 
 import java.util.List;
+import java.util.HashMap; // import the HashMap class
+
 
 public class Worker {
     static Recognition.sentimentAnalysisHandler sentimentAnalysisHandler = new sentimentAnalysisHandler();
     static Recognition.namedEntityRecognitionHandler namedEntityRecognitionHandler = new namedEntityRecognitionHandler();
     static Gson gson = new Gson();  //json
+
+    static HashMap<String, SQSOperations> ANSWER_SQS_Hash = new HashMap<String, SQSOperations>();
+
 
     //private static final String JOB_QUEUE_NAME = "jobsQueue";
     //private static final String ANSWER_QUEUE_NAME = "answerQueue";
@@ -45,10 +50,11 @@ public class Worker {
             for (Message m : messages) {
                 //todo: make mini function and check!
                 //System.out.println(m.body());
-                String ans = jsonToHTML(m.body());
+                SendAndReceiveJsonToWorker.Review review = gson.fromJson(m.body(), SendAndReceiveJsonToWorker.Review.class);
+                String ans = jsonToHTML(review);
                 //<span></span
                 //todo: return answer
-                ANSWER_SQS.sendMessage(ans);
+                getAnswetSQS(review.jobFile).sendMessage(ans);
             }
 
             // delete messages from the queue
@@ -57,8 +63,19 @@ public class Worker {
         }
 
     }
-    private static String jsonToHTML(String Message){
-        SendAndReceiveJsonToWorker.Review review = gson.fromJson(Message, SendAndReceiveJsonToWorker.Review.class);
+
+    private static SQSOperations getAnswetSQS(String jobFile){
+        SQSOperations ANSWER_SQS = ANSWER_SQS_Hash.get(jobFile);
+        if (ANSWER_SQS == null){
+            ANSWER_SQS = new SQSOperations(SQSOperations.ANSWER_QUEUE+'_'+jobFile);
+            ANSWER_SQS.getQueue();
+            ANSWER_SQS_Hash.put(jobFile,ANSWER_SQS);
+        }
+        return ANSWER_SQS;
+    }
+
+    private static String jsonToHTML(SendAndReceiveJsonToWorker.Review review){
+        //SendAndReceiveJsonToWorker.Review review = gson.fromJson(Message, SendAndReceiveJsonToWorker.Review.class);
         int sentiment = sentimentAnalysisHandler(review.text);
         String list_of_the_named_entities = namedEntityRecognitionHandler(review.text);
 

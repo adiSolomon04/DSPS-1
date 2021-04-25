@@ -38,9 +38,7 @@ import software.amazon.awssdk.core.sync.ResponseTransformer;
 public class S3ObjectOperations {
     private S3Client s3;
     //
-    private static String bucket_name = "dsps-s3-adieran-2021";
-    private String key;
-    private static String outputKey;
+    private static String bucket_name = "dsps-s3-adieran2-2021";
     private Region region = Region.US_EAST_1;
 
     /*
@@ -55,15 +53,12 @@ public class S3ObjectOperations {
     public S3ObjectOperations() {
         s3 = S3Client.builder().region(region).build();
         // Has one file only!!!
-        String rand_num = "" + System.currentTimeMillis();
-        key = "input_"+rand_num+".txt";
-        outputKey = "Output_";//"output_"+rand_num+".html";
     }
 
     /*
     Upload file from local to s3
      */
-    public void uploadFile(String file_path){
+    public void uploadFile(String file_path,String key){
         s3.putObject(PutObjectRequest.builder().bucket(bucket_name).key(key)
                         .build(),
                 RequestBody.fromFile(new File(file_path)));
@@ -73,7 +68,7 @@ public class S3ObjectOperations {
     upload file from Manager to s3
     todo: change outputKey by file
      */
-    public void uploadFileString(String content){
+    public void uploadFileString(String content, String outputKey){
         s3.putObject(PutObjectRequest.builder().bucket(bucket_name).key(outputKey)
                         .build(),
                 RequestBody.fromString(content));
@@ -82,7 +77,7 @@ public class S3ObjectOperations {
     /*
     Uses outputKey to download the output file.
      */
-    public void downloadFileHtml(String file_path){
+    public void downloadFileHtml(String file_path,String outputKey){
         s3.getObject(GetObjectRequest.builder().bucket(bucket_name).key(outputKey).build(),
                 ResponseTransformer.toFile(new File(file_path))); //.html
     }
@@ -92,7 +87,7 @@ public class S3ObjectOperations {
                 ResponseTransformer.toFile(new File(file_path))); //.html
     }
 
-    public void deleteFile(){
+    public void deleteFile(String key){
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder().bucket(bucket_name).key(key).build();
         s3.deleteObject(deleteObjectRequest);
     }
@@ -114,11 +109,11 @@ public class S3ObjectOperations {
         s3.deleteBucket(deleteBucketRequest);
     }
 
-    public String getKey() {
+    /*public String getKey() {
         return key;
     }
 
-    public String getOutKey() { return outputKey;  }
+    public String getOutKey() { return outputKey;  }*/
 }
 
     /*

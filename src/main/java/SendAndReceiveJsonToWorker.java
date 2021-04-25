@@ -14,6 +14,8 @@ public class SendAndReceiveJsonToWorker {
     private String HTML; //switch to hash of string to HTML string
     private boolean[] fileJobs;
     private int fileJobsLeft;
+    private String outputKey; //output File name
+
     //private HashMap<String, <Array,String, Integer>> filesAnswers;
 
     public SendAndReceiveJsonToWorker() {
@@ -24,6 +26,7 @@ public class SendAndReceiveJsonToWorker {
     }
 
     public void sendJobs(String Filename, SQSOperations JOB_SQS) throws IOException {
+        outputKey = "output"+Filename;
         BufferedWriter myWriter = new BufferedWriter(new FileWriter("fileName.txt", true));
         myWriter.write("\nstart jobs send-------------------\n");
         myWriter.flush();
@@ -115,6 +118,10 @@ public class SendAndReceiveJsonToWorker {
      */
     public String getHTML(){
         return HTML;
+    }
+
+    public String getOutputKey() {
+        return outputKey;
     }
 
     public class JsonClassRead {
