@@ -5,6 +5,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.model.Message;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /*
@@ -24,50 +25,88 @@ public class LocalApplication {
 
     private static SQSOperations sqsOperationsIn;
     private static SQSOperations sqsOperationsOut;
+    private static HashMap<String, String> fileNames;
 
-
+// java  -jar yourjar.jar inputFileName1... inputFileNameN n [terminate]
     public static void main(String[] args) {
+        Integer n;
+        int fileNum = 0;
+        //Input
+        if (args.length < 2) {
+            System.out.println("Not enough Args");
+            System.exit(1);
+        }
+        try {
+            if (args[args.length].equals("[terminate]")) {
+                n = Integer.parseInt(args[args.length - 2]);
+                fileNum = args.length - 2;
+            } else {
+                n = Integer.parseInt(args[args.length - 1]);
+                fileNum = args.length - 1;
+            }
+
+        } catch (NumberFormatException nfe) {
+            System.out.println("n not inserted");
+            System.exit(1);
+        }
+
+        //INIT
+        fileNames = new HashMap<String, String>(10);
         S3ObjectOperations s3Operations = new S3ObjectOperations();
         EC2Operations ec2Operations = new EC2Operations(amiId);
         //todo: test if opening multiple Local in 1 computer is working
-
-        //Create Manager Instance
-        //List<String> instanceIds = new ArrayList<>();
         sqsOperationsIn = new SQSOperations(SQSOperations.IN_QUEUE);
         sqsOperationsOut = new SQSOperations(SQSOperations.OUT_QUEUE);
-        if(!ec2Operations.ManagerExists()) {
-            managerId = ec2Operations.createInstance(ec2Operations.ManagerName, managerCommand+" "+n+" "+amiId+"\n");
+        if (!ec2Operations.ManagerExists()) {
+            managerId = ec2Operations.createInstance(ec2Operations.ManagerName, managerCommand + " " + n + " " + amiId + "\n");
             sqsOperationsIn.createSQS();
             sqsOperationsOut.createSQS();
         }
         sqsOperationsIn.getQueue();
         sqsOperationsOut.getQueue();
 
-        //Upload file to S3
-        s3Operations.uploadFile("B000EVOSE4.txt");
+        //Upload files to S3
+        for (int i = 0; i < fileNum; i++) {
+            String fileName = args[i];
+            String ID = "" + System.currentTimeMillis();
+            String key = "input_" + ID;
+            s3Operations.uploadFile(fileName, key);
+            fileNames.put(ID, fileName.substring(0,fileName.length()-4));
+            sqsOperationsIn.sendMessage(key);
+        }
+
+        //check for errors
         List<Message> Messages = sqsOperationsIn.getMessage();
-        if((Messages.size()!=0)&& Messages.get(0).body().startsWith("Err")){
+        if ((Messages.size() != 0) && Messages.get(0).body().startsWith("Err")) {
             System.out.println(sqsOperationsOut.getMessage().get(0).body());
             System.exit(1);
         }
 
         //todo:local opens answer queue before putting message in QUEUE to manager
-        sqsOperationsIn.sendMessage(s3Operations.getKey());
         List<Message> messages = sqsOperationsOut.getMessage();
-        while(messages.isEmpty()){
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        while (!fileNames.isEmpty()) {
+            while (messages.isEmpty()) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                messages = sqsOperationsOut.getMessage();
             }
-            messages = sqsOperationsOut.getMessage();
+            for(Message message : messages){
+                String ID = getID(message.body());
+                String fileName = fileNames.get(ID);
+                s3Operations.downloadFileJson("bin/" + fileName + ".html", message.body());
+                System.out.println("Downloaded answer to file\t" + fileName+"\n");
+            }
+            sqsOperationsOut.deleteMessage(messages);
         }
-        s3Operations.downloadFileHtml("bin/"+messages.get(0).body()+".html");
+    }
 
-        System.out.println("Downloaded file\t" + messages.get(0).body());
 
-        //ec2Operations.deleteInstanceById(instanceIds);
-        //ec2Operations.deleteInstanceByName(ec2Operations.ManagerName);
+    private static String getID(String message){
+        String[] arr = message.split("_");
+        return arr[1];
     }
 
 }
