@@ -16,13 +16,15 @@ public class SendAndReceiveJsonToWorker {
     private boolean[] fileJobs;
     private int fileJobsLeft;
     private String outputKey; //output File name
+    private SQSOperations LocalQueue;
 
     //private HashMap<String, <Array,String, Integer>> filesAnswers;
 
-    public SendAndReceiveJsonToWorker() {
+    public SendAndReceiveJsonToWorker(String QueueName) {
         gson = new Gson();
         reader = null;
         inStream = null;
+        LocalQueue = new SQSOperations(QueueName);
         //filesAnswers = new HashMap<>();
     }
 
@@ -79,6 +81,7 @@ public class SendAndReceiveJsonToWorker {
     todo: check if thre arent 2 same answers.
      */
     public void collectAnswers(SQSOperations ANSWER_SQS, AtomicInteger numJobs){//, SQSOperations sqsOperationsOut) {
+        LocalQueue.getQueue();
         HTML = "";
         List<Message> messages = ANSWER_SQS.getMessage();
         Answer ans;
@@ -128,6 +131,8 @@ public class SendAndReceiveJsonToWorker {
         return outputKey;
     }
 
+    public SQSOperations getLocalQueue() {return LocalQueue; }
+
     public class JsonClassRead {
         public String title;
         public Review[] reviews;
@@ -143,12 +148,14 @@ public class SendAndReceiveJsonToWorker {
         public String date;
         public Integer jobNum;
         public String jobFile;
+        public String Queue;
     }
 
     public static class Answer {
         public Integer jobNum;
         public String jobFile;
         public String body;
+        public String Queue;
     }
 }
 

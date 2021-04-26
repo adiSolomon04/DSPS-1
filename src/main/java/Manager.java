@@ -100,19 +100,19 @@ public class Manager {
                 List<Message> Messages = sqsOperationsIn.getMessage();
                 for (Message message : Messages) {
                     myWriter.write("file\n");
-                    String Body = message.body();
-                    s3Operations.downloadFileJson(Body, Body); //"inputFiles/"
-                    SQSOperations sqsOperationsAnswers = new SQSOperations(SQSOperations.ANSWER_QUEUE + '_' + Body);
+                    String[] KeyQueue = message.body().split("-");
+                    s3Operations.downloadFileJson(KeyQueue[0], KeyQueue[0]); //"input_173636363
+                    SQSOperations sqsOperationsAnswers = new SQSOperations(SQSOperations.ANSWER_QUEUE + '_' + KeyQueue[0]);
                     sqsOperationsAnswers.createSQS();
                     sqsOperationsAnswers.getQueue();
 
                     //Json
-                    SendAndReceiveJsonToWorker jsonToWorker = new SendAndReceiveJsonToWorker();
-                    int newJobs = jsonToWorker.sendJobs(Body, sqsOperationsJobs);//"inputFiles/"/*
+                    SendAndReceiveJsonToWorker jsonToWorker = new SendAndReceiveJsonToWorker(KeyQueue[1]);
+                    int newJobs = jsonToWorker.sendJobs(KeyQueue[0], sqsOperationsJobs);//"inputFiles/"/*
                     numJobs.addAndGet(newJobs);
-                    myWriter.write(Body+"\t");
+                    myWriter.write(KeyQueue[0]+"\t");
                     //Check if terminate
-                    if (Body.substring(Body.length() - "[terminate]".length() - 1, Body.length() - 1).equals("[terminate]")) {
+                    if (KeyQueue[0].substring(KeyQueue[0].length() - "[terminate]".length() - 1, KeyQueue[0].length() - 1).equals("[terminate]")) {
                         Terminate = true;
                         break;
                     }

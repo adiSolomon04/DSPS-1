@@ -7,6 +7,7 @@ import software.amazon.awssdk.services.sqs.model.Message;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 /*
 Open s3 Bucket name: "dsps-s3-adieran-2021"
@@ -22,6 +23,7 @@ public class LocalApplication {
     private static final String amiId = "ami-0dbccf8207854c5d8";
     private static String managerId = "";
     private static String n = "50";
+    private static String LocalQueueName;
 
     private static SQSOperations sqsOperationsIn;
     private static SQSOperations sqsOperationsOut;
@@ -59,14 +61,17 @@ public class LocalApplication {
         EC2Operations ec2Operations = new EC2Operations(amiId);
         //todo: test if opening multiple Local in 1 computer is working
         sqsOperationsIn = new SQSOperations(SQSOperations.IN_QUEUE);
-        sqsOperationsOut = new SQSOperations(SQSOperations.OUT_QUEUE);
         if (!ec2Operations.ManagerExists()) {
             managerId = ec2Operations.createInstance(ec2Operations.ManagerName, managerCommand + " " + n + " " + amiId + "\n");
             sqsOperationsIn.createSQS();
-            sqsOperationsOut.createSQS();
+            //sqsOperationsOut.createSQS();
         }
         sqsOperationsIn.getQueue();
-        sqsOperationsOut.getQueue();
+
+        //Get a new Output QUEUE
+        Random rand = new Random();
+        LocalQueueName = SQSOperations.LOCAL_QUEUE+"_"+System.currentTimeMillis()+Math.abs(rand.nextLong());
+        sqsOperationsOut = new SQSOperations(LocalQueueName);
 
         System.out.println("Uploading files to s3\n");
         //Upload files to S3
@@ -76,7 +81,7 @@ public class LocalApplication {
             String key = "input_" + ID;
             s3Operations.uploadFile(fileName, key);
             fileNames.put(ID, fileName.substring(0,fileName.length()-4));
-            sqsOperationsIn.sendMessage(key);
+            sqsOperationsIn.sendMessage(key+"-"+LocalQueueName); //input_173636363-Queue_16194582471827992286586911152223
         }
         //todo: add terminate
 
@@ -114,6 +119,8 @@ public class LocalApplication {
             messages = sqsOperationsOut.getMessage();
         }
         System.out.println("Downloaded all answers to folder bin\n");
+        sqsOperationsOut.deleteSQS();
+        System.out.println("Delete Local SQS");
     }
 
 

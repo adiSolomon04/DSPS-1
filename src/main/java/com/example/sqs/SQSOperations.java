@@ -15,6 +15,7 @@ public class SQSOperations {
     public static final String ANSWER_QUEUE = "Answer_Queue";
     public static final String IN_QUEUE = "Input_Queue";
     public static final String OUT_QUEUE = "Output_Queue";
+    public static final String LOCAL_QUEUE = "Queue";
 
     public SQSOperations(String QUEUE_NAME) {
         this.QUEUE_NAME = QUEUE_NAME;

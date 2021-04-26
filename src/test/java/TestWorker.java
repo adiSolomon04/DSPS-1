@@ -1,7 +1,9 @@
+import com.example.sqs.SQSOperations;
 import com.google.gson.Gson;
 //import jdk.nashorn.internal.runtime.regexp.joni.constants.internal.OPCode;
 
 import java.io.*;
+import java.util.Random;
 
 public class TestWorker {
     public static void main(String[] args) throws IOException {

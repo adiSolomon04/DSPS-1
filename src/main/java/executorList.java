@@ -23,7 +23,6 @@ public class executorList {
     public void addMission(SendAndReceiveJsonToWorker jsonToWorker, SQSOperations sqsOperationsAnswers, AtomicInteger numJobs){
         Future<SendAndReceiveJsonToWorker> future = executor.submit(() -> {
             jsonToWorker.collectAnswers(sqsOperationsAnswers, numJobs);
-
             return jsonToWorker;
         });
         futures.add(future);
@@ -45,7 +44,8 @@ public class executorList {
                 //if(!HTML.isEmpty()) {
 
                     s3Operations.uploadFileString(HTMLHeader + HTML + HTMLFooter, sendAndReceiveJsonToWorker.getOutputKey());
-                    sqsOperationsOut.sendMessage(sendAndReceiveJsonToWorker.getOutputKey());
+                    SQSOperations LocalQueue = sendAndReceiveJsonToWorker.getLocalQueue();
+                    LocalQueue.sendMessage(sendAndReceiveJsonToWorker.getOutputKey());
                // }
 
             }
