@@ -38,7 +38,7 @@ import software.amazon.awssdk.core.sync.ResponseTransformer;
 public class S3ObjectOperations {
     private S3Client s3;
     //
-    private static String bucket_name = "dsps-s3-adieran2-2021";
+    private static String bucket_name = "dsps-s3-adieran-2021";
     private Region region = Region.US_EAST_1;
 
     /*

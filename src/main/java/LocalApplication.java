@@ -19,7 +19,7 @@ public class LocalApplication {
     /*
     Update ami after creating your image
      */
-    private static final String amiId = "ami-024fffd05e677c367";
+    private static final String amiId = "ami-0dbccf8207854c5d8";
     private static String managerId = "";
     private static String n = "50";
 
@@ -37,7 +37,7 @@ public class LocalApplication {
             System.exit(1);
         }
 
-        if (args[args.length].equals("[terminate]")) {
+        if (args[args.length-1].equals("[terminate]")) {
             n = args[args.length - 2];
             fileNum = args.length - 2;
         } else {
@@ -53,6 +53,7 @@ public class LocalApplication {
         }
 
         //INIT
+        System.out.println("Init\n");
         fileNames = new HashMap<>(10);
         S3ObjectOperations s3Operations = new S3ObjectOperations();
         EC2Operations ec2Operations = new EC2Operations(amiId);
@@ -60,13 +61,14 @@ public class LocalApplication {
         sqsOperationsIn = new SQSOperations(SQSOperations.IN_QUEUE);
         sqsOperationsOut = new SQSOperations(SQSOperations.OUT_QUEUE);
         if (!ec2Operations.ManagerExists()) {
-            //managerId = ec2Operations.createInstance(ec2Operations.ManagerName, managerCommand + " " + n + " " + amiId + "\n");
+            managerId = ec2Operations.createInstance(ec2Operations.ManagerName, managerCommand + " " + n + " " + amiId + "\n");
             sqsOperationsIn.createSQS();
             sqsOperationsOut.createSQS();
         }
         sqsOperationsIn.getQueue();
         sqsOperationsOut.getQueue();
 
+        System.out.println("Uploading files to s3\n");
         //Upload files to S3
         for (int i = 0; i < fileNum; i++) {
             String fileName = args[i];
@@ -79,12 +81,16 @@ public class LocalApplication {
         //todo: add terminate
 
         //check for errors
+        System.out.println("Checking for errors in Manager\n");
         List<Message> Messages = sqsOperationsIn.getMessage();
         if ((Messages.size() != 0) && Messages.get(0).body().startsWith("Err")) {
+            System.out.println("Error found\n");
             System.out.println(sqsOperationsOut.getMessage().get(0).body());
             System.exit(1);
         }
+        System.out.println("No Error found\n");
 
+        System.out.println("Waiting for answers from manager\n");
         //todo:local opens answer queue before putting message in QUEUE to manager
         List<Message> messages = sqsOperationsOut.getMessage();
         while (!fileNames.isEmpty()) {
@@ -106,6 +112,7 @@ public class LocalApplication {
             messages = sqsOperationsOut.getMessage();
 
         }
+        System.out.println("Downloaded all answers to folder bin\n");
     }
 
 

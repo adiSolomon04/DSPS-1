@@ -16,7 +16,7 @@ public class Worker {
     static Recognition.namedEntityRecognitionHandler namedEntityRecognitionHandler = new namedEntityRecognitionHandler();
     static Gson gson = new Gson();  //json
 
-    static HashMap<String, SQSOperations> ANSWER_SQS_Hash = new HashMap<String, SQSOperations>();
+    static HashMap<String, SQSOperations> ANSWER_SQS_Hash = new HashMap<>();
 
 
     //private static final String JOB_QUEUE_NAME = "jobsQueue";

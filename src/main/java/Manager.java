@@ -34,7 +34,7 @@ public class Manager {
     private static boolean Terminate = false;
 
 
-
+// // java  -jar yourjar.jar n ami
     public static void main(String[] args) throws IOException {
         BufferedWriter myWriter = new BufferedWriter(new FileWriter("fileName.txt"));
         myWriter.write("Manager start !\n");
@@ -115,14 +115,13 @@ public class Manager {
                         for (int i = 0; i < newInstNum - numInstances; i++) {
                             myWriter.write("before open worker");
                             myWriter.flush();
-                           // workerIds.add(ec2Operations.createInstance("Worker", workerCommand));
+                            workerIds.add(ec2Operations.createInstance("Worker", workerCommand));
                             myWriter.write("after open worker");
                             myWriter.flush();
                         }
                     }
 
                     executorGetAnswer.addMission(jsonToWorker,sqsOperationsAnswers);
-                    //jsonToWorker.collectAnswers(sqsOperationsAnswers);
                     sqsOperationsIn.deleteMessage(Messages);
 
                 }
