@@ -29,29 +29,31 @@ public class LocalApplication {
 
 // java  -jar yourjar.jar inputFileName1... inputFileNameN n [terminate]
     public static void main(String[] args) {
-        Integer n;
+        String n;
         int fileNum = 0;
         //Input
         if (args.length < 2) {
             System.out.println("Not enough Args");
             System.exit(1);
         }
-        try {
-            if (args[args.length].equals("[terminate]")) {
-                n = Integer.parseInt(args[args.length - 2]);
-                fileNum = args.length - 2;
-            } else {
-                n = Integer.parseInt(args[args.length - 1]);
-                fileNum = args.length - 1;
-            }
 
+        if (args[args.length].equals("[terminate]")) {
+            n = args[args.length - 2];
+            fileNum = args.length - 2;
+        } else {
+            n = args[args.length - 1];
+            fileNum = args.length - 1;
+        }
+
+        try {
+            Integer.parseInt(n);
         } catch (NumberFormatException nfe) {
             System.out.println("n not inserted");
             System.exit(1);
         }
 
         //INIT
-        fileNames = new HashMap<String, String>(10);
+        fileNames = new HashMap<>(10);
         S3ObjectOperations s3Operations = new S3ObjectOperations();
         EC2Operations ec2Operations = new EC2Operations(amiId);
         //todo: test if opening multiple Local in 1 computer is working
@@ -74,6 +76,7 @@ public class LocalApplication {
             fileNames.put(ID, fileName.substring(0,fileName.length()-4));
             sqsOperationsIn.sendMessage(key);
         }
+        //todo: add terminate
 
         //check for errors
         List<Message> Messages = sqsOperationsIn.getMessage();
@@ -95,7 +98,7 @@ public class LocalApplication {
             }
             for(Message message : messages){
                 String ID = getID(message.body());
-                String fileName = fileNames.get(ID);
+                String fileName = fileNames.remove(ID);
                 s3Operations.downloadFileJson("bin/" + fileName + ".html", message.body());
                 System.out.println("Downloaded answer to file\t" + fileName+"\n");
             }
