@@ -60,7 +60,7 @@ public class LocalApplication {
         sqsOperationsIn = new SQSOperations(SQSOperations.IN_QUEUE);
         sqsOperationsOut = new SQSOperations(SQSOperations.OUT_QUEUE);
         if (!ec2Operations.ManagerExists()) {
-            managerId = ec2Operations.createInstance(ec2Operations.ManagerName, managerCommand + " " + n + " " + amiId + "\n");
+            //managerId = ec2Operations.createInstance(ec2Operations.ManagerName, managerCommand + " " + n + " " + amiId + "\n");
             sqsOperationsIn.createSQS();
             sqsOperationsOut.createSQS();
         }
@@ -103,6 +103,8 @@ public class LocalApplication {
                 System.out.println("Downloaded answer to file\t" + fileName+"\n");
             }
             sqsOperationsOut.deleteMessage(messages);
+            messages = sqsOperationsOut.getMessage();
+
         }
     }
 
