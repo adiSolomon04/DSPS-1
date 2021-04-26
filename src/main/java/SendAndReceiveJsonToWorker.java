@@ -4,6 +4,7 @@ import software.amazon.awssdk.services.sqs.model.Message;
 
 import java.io.*;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class SendAndReceiveJsonToWorker {
@@ -25,7 +26,7 @@ public class SendAndReceiveJsonToWorker {
         //filesAnswers = new HashMap<>();
     }
 
-    public void sendJobs(String Filename, SQSOperations JOB_SQS) throws IOException {
+    public int sendJobs(String Filename, SQSOperations JOB_SQS) throws IOException {
         outputKey = "output"+Filename;
         BufferedWriter myWriter = new BufferedWriter(new FileWriter("fileName.txt", true));
         myWriter.write("\nstart jobs send-------------------\n");
@@ -36,7 +37,7 @@ public class SendAndReceiveJsonToWorker {
             reader = new FileReader(Filename);//(args[0]);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            return;
+            return 0;
         }
         assert reader != null;
         inStream = new BufferedReader(reader);
@@ -69,6 +70,7 @@ public class SendAndReceiveJsonToWorker {
         fileJobs = new boolean[jobCount];
         //assign number of jobs to Left
         fileJobsLeft = jobCount--;
+        return fileJobsLeft;
     }
 
     /*
@@ -76,7 +78,7 @@ public class SendAndReceiveJsonToWorker {
     todo: put id for each input file, get only answers for that file
     todo: check if thre arent 2 same answers.
      */
-    public void collectAnswers(SQSOperations ANSWER_SQS){//, SQSOperations sqsOperationsOut) {
+    public void collectAnswers(SQSOperations ANSWER_SQS, AtomicInteger numJobs){//, SQSOperations sqsOperationsOut) {
         HTML = "";
         List<Message> messages = ANSWER_SQS.getMessage();
         Answer ans;
@@ -91,6 +93,7 @@ public class SendAndReceiveJsonToWorker {
                 //check if answer was already taken.
                 if(!fileJobs[ans.jobNum]){
                     fileJobsLeft--;
+                    numJobs.decrementAndGet();
                     HTML = HTML +"\n"+ ans.body;
                     fileJobs[ans.jobNum] = true;
                     if(fileJobsLeft==0) {
@@ -111,6 +114,7 @@ public class SendAndReceiveJsonToWorker {
 
             messages = ANSWER_SQS.getMessage();
         }
+        ANSWER_SQS.deleteSQS();
     }
 
     /*

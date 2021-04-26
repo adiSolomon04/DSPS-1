@@ -34,6 +34,7 @@ public class EC2Operations {
     private Integer runningCode = 16;
     private Integer pendingCode = 0;
     public static final String ManagerName = "Manager";
+    public static final String WorkerName = "Worker";
     //static String name = "adisolo ec2";
 
     public EC2Operations(String amiId){
@@ -129,5 +130,14 @@ public class EC2Operations {
      */
     public boolean ManagerExists() {
         return !getInstanceId("Manager").isEmpty();
+    }
+    /*
+    returns the number of workers that can be opened
+    without exceeding a total of 15
+    0 - no workers can be opened.
+     */
+    public int openMoreWorkers(){
+        int openWorkers = getInstanceId(EC2Operations.WorkerName).size();
+        return openWorkers<15 ? 15-openWorkers : 0;
     }
 }

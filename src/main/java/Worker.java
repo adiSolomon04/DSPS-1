@@ -53,8 +53,12 @@ public class Worker {
                 SendAndReceiveJsonToWorker.Review review = gson.fromJson(m.body(), SendAndReceiveJsonToWorker.Review.class);
                 String ans = jsonToHTML(review);
                 //<span></span
-                //todo: return answer
-                getAnswetSQS(review.jobFile).sendMessage(ans);
+                //todo: check
+                //If there are 2 same messages and queue already destroyed - put will not work
+                try {
+                    getAnswetSQS(review.jobFile).sendMessage(ans);
+                } catch (Exception e) {
+                }
             }
 
             // delete messages from the queue

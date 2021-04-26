@@ -65,6 +65,17 @@ public class SQSOperations {
             sqs.deleteMessage(deleteRequest);
         }
     }
+
+    public void deleteSQS() {
+        try {
+            DeleteQueueRequest request = DeleteQueueRequest.builder()
+                    .queueUrl(queueUrl)
+                    .build();
+            DeleteQueueResponse delete_result = sqs.deleteQueue(request);
+        } catch (QueueNameExistsException e) {
+            throw e;
+        }
+    }
 }
 
 

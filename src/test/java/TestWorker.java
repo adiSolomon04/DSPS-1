@@ -5,11 +5,11 @@ import java.io.*;
 
 public class TestWorker {
     public static void main(String[] args) throws IOException {
-        Worker W = new Worker();
-        System.out.println(W.sentimentAnalysisHandler("My dad and Ana loved it!"));
-        W.namedEntityRecognitionHandler("My dad and Ana loved it!");
+        //Worker W = new Worker();
+        //System.out.println(W.sentimentAnalysisHandler("My dad and Ana loved it!"));
+        //W.namedEntityRecognitionHandler("My dad and Ana loved it!");
 
-        String Filename = "0689835604.txt";
+        String Filename = "adi2.txt";
 
         //Start - Reading input json lined file
         Gson gson = new Gson();
@@ -29,12 +29,17 @@ public class TestWorker {
         assert reader != null;
         inStream = new BufferedReader(reader);
         JsonClassRead[] gsonLoad = new JsonClassRead[lines];
-        for(int i=0; i<lines; i++)
+
+        int numJobs = 0;
+        for(int i=0; i<lines; i++) {
             gsonLoad[i] = gson.fromJson(inStream.readLine(), JsonClassRead.class);
+            numJobs+= gsonLoad[i].reviews.length;
+        }
+        System.out.println(numJobs);
 
         //Reading data from json class JsonClassRead
-        String title1 = gsonLoad[0].title;
-        System.out.println(title1);
+        //String title1 = gsonLoad[0].title;
+        //System.out.println(title1);
 
     }
 

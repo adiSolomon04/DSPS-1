@@ -106,11 +106,12 @@ public class LocalApplication {
                 String ID = getID(message.body());
                 String fileName = fileNames.remove(ID);
                 s3Operations.downloadFileJson("bin/" + fileName + ".html", message.body());
+                s3Operations.deleteFile("input_" + ID);
+                s3Operations.deleteFile(message.body());
                 System.out.println("Downloaded answer to file\t" + fileName+"\n");
             }
             sqsOperationsOut.deleteMessage(messages);
             messages = sqsOperationsOut.getMessage();
-
         }
         System.out.println("Downloaded all answers to folder bin\n");
     }

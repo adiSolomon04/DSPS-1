@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class executorList {
     private int k;
@@ -19,9 +20,10 @@ public class executorList {
         futures = new LinkedList<Future<SendAndReceiveJsonToWorker>>();
     }
 
-    public void addMission(SendAndReceiveJsonToWorker jsonToWorker, SQSOperations sqsOperationsAnswers){
+    public void addMission(SendAndReceiveJsonToWorker jsonToWorker, SQSOperations sqsOperationsAnswers, AtomicInteger numJobs){
         Future<SendAndReceiveJsonToWorker> future = executor.submit(() -> {
-            jsonToWorker.collectAnswers(sqsOperationsAnswers);
+            jsonToWorker.collectAnswers(sqsOperationsAnswers, numJobs);
+
             return jsonToWorker;
         });
         futures.add(future);
@@ -48,6 +50,10 @@ public class executorList {
 
             }
         }
+    }
+
+    public boolean isEmpty(){
+        return futures.isEmpty();
     }
 
 
