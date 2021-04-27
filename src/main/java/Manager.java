@@ -69,10 +69,6 @@ public class Manager {
         //sqsOperationsIn.createSQS();
         sqsOperationsIn.getQueue();
 
-        //todo: for each local app!!
-        sqsOperationsOut = new SQSOperations(SQSOperations.OUT_QUEUE);
-        //sqsOperationsOut.createSQS();
-        sqsOperationsOut.getQueue();
 
         sqsOperationsJobs = new SQSOperations(SQSOperations.JOB_QUEUE);
         sqsOperationsJobs.createSQS();
@@ -100,6 +96,12 @@ public class Manager {
                 List<Message> Messages = sqsOperationsIn.getMessage();
                 for (Message message : Messages) {
                     myWriter.write("file\n");
+                    //Check if terminate
+                    if (message.body().equals("[terminate]")) {
+                        Terminate = true;
+                        break;
+                    }
+
                     String[] KeyQueue = message.body().split("-");
                     s3Operations.downloadFileJson(KeyQueue[0], KeyQueue[0]); //"input_173636363
                     SQSOperations sqsOperationsAnswers = new SQSOperations(SQSOperations.ANSWER_QUEUE + '_' + KeyQueue[0]);
@@ -111,11 +113,6 @@ public class Manager {
                     int newJobs = jsonToWorker.sendJobs(KeyQueue[0], sqsOperationsJobs);//"inputFiles/"/*
                     numJobs.addAndGet(newJobs);
                     myWriter.write(KeyQueue[0]+"\t");
-                    //Check if terminate
-                    if (KeyQueue[0].substring(KeyQueue[0].length() - "[terminate]".length() - 1, KeyQueue[0].length() - 1).equals("[terminate]")) {
-                        Terminate = true;
-                        break;
-                    }
                     //open new Instances if needed
                     int newInstNum = (int)(Math.ceil(numJobs.get() / (1.0*n)));
                     int maxInst = ec2Operations.openMoreWorkers();
@@ -126,15 +123,15 @@ public class Manager {
                             workerIds.add(ec2Operations.createInstance(EC2Operations.WorkerName, workerCommand));
                             myWriter.write("after open worker");
                             myWriter.flush();
+                            numInstances++;
                         }
                     }
 
                     executorGetAnswer.addMission(jsonToWorker,sqsOperationsAnswers, numJobs);
-                    sqsOperationsIn.deleteMessage(Messages);
 
                 }
                 executorGetAnswer.checkFuture(s3Operations,HTMLHeader,HTMLFooter,sqsOperationsOut);
-
+                sqsOperationsIn.deleteMessage(Messages);
             }
             if(moreFuturesAvailable = !executorGetAnswer.isEmpty()) {
                 try {
