@@ -26,12 +26,22 @@ Local
     * InstanceType = T2_MEDIUM
     * iamInstanceProfile = WorkerAndMennager (which give the instance option to open other instance, upload and downlod file from S3 and send massage throw the SQS without the cardentioal).
 4. create SQSOperations object which simplifies the aws operation to send massage throw the sqs from local to mannager (*one sqs for all the locals* "Input_Queue").
-5. create mannager if not exist.
-6. create SQSOperations object which simplifies the aws operation to send massage throw the sqs from mannager to local (*one sqs for each the local* "Queue"+time+randomNumber).
-7. upload the files to S3 in the format "'input_' + time" and send throw the local-to-manager sqs "filename-localSqsName" and insert them into hash inorder to know what files we wating for.
-8. wating to massage that the file done from the sqs mannager to local (sqs for each local...)
-9. when got all the massage send "[teminate]" if needed
+5. create mannager if not exist. 
+```bash
+java -jar Manager.jar n amiId
+```
+7. create SQSOperations object which simplifies the aws operation to send massage throw the sqs from mannager to local (*one sqs for each the local* "Queue"+time+randomNumber).
+8. upload the files to S3 in the format "'input_' + time" and send throw the local-to-manager sqs "filename-localSqsName" and insert them into hash inorder to know what files we wating for.
+9. wating to massage that the file done from the sqs mannager to local (sqs for each local...)
+10. when got all the massage send "[teminate]" if needed
 
   
 Manager
 ----
+1. create SQSOperations object which simplifies the aws operation to send massage throw the sqs from local to mannager (*one sqs for all the locals* "Input_Queue").
+2. create SQSOperations object which simplifies the aws operation to send massage throw the sqs from mannager to workers (*one sqs for all the workers* "Jobs_Queue").
+3. create ec2Operations object which simplifies the aws operation to make instances.
+    * Region = US_EAST_1
+    * ami id = 
+    * InstanceType = T2_MEDIUM
+    * iamInstanceProfile = WorkerAndMennager (which give the instance option to open other instance, upload and downlod file from S3 and send massage throw the SQS without the cardentioal).
