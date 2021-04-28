@@ -2,7 +2,7 @@
 Description
 ----
 This project done within the Programming distributed systems course of Dr. Adler Menachem.
-The code was written in Java and use the aws service of Amazon Web Services(AWS).
+The code was written in Java and use the Amazon Web Services(AWS).
 
 inorder to run the code you have to save the cardential that given from amazon and save them ןn the appropriate location on the computerץ
 Then, you can run in the terminal the comandline:
@@ -18,11 +18,11 @@ java -jar *******.jar inputFileName1... inputFileNameN outputFileName1... output
   
 Local
 ----
-* the local read the arguments.
-* then create S3ObjectOperations object which simplifies the aws operation to uploud and download files from the bucket "dsps-s3-adieran-2021".
-* them create ec2Operations object which simplifies the aws operation to make instances.
+1. the local read the arguments.
+2. create S3ObjectOperations object which simplifies the aws operation to uploud and download files from the bucket "dsps-s3-adieran-2021".
+3. create ec2Operations object which simplifies the aws operation to make instances.
   * Region = US_EAST_1
   * ami id = 
   * InstanceType = T2_MEDIUM
   * iamInstanceProfile = WorkerAndMennager (which give the instance option to open other instance, upload and downlod file from S3 and send massage throw the SQS without the cardentioal)
-* 
+4. create SQSOperations object which simplifies the aws operation to send massage throw the sqs
