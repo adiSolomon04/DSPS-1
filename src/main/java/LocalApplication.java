@@ -96,7 +96,6 @@ public class LocalApplication {
         System.out.println("No Error found\n");
 
         System.out.println("Waiting for answers from manager\n");
-        //todo:local opens answer queue before putting message in QUEUE to manager
         List<Message> messages = sqsOperationsOut.getMessage();
         while (!fileNames.isEmpty()) {
             while (messages.isEmpty()) {

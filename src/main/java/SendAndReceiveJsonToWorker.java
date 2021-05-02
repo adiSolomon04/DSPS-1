@@ -77,8 +77,6 @@ public class SendAndReceiveJsonToWorker {
 
     /*
     Merge all Answers from a input files
-    todo: put id for each input file, get only answers for that file
-    todo: check if thre arent 2 same answers.
      */
     public void collectAnswers(SQSOperations ANSWER_SQS, AtomicInteger numJobs){//, SQSOperations sqsOperationsOut) {
         LocalQueue.getQueue();
@@ -102,8 +100,6 @@ public class SendAndReceiveJsonToWorker {
                     if(fileJobsLeft==0) {
                         break;
 
-                        //todo: (CAN BE IN Manager maybe)
-                        //todo:s3 upload file, sqs write message to local
                         //sqsOperationsOut.sendMessage("file address/key");
                         //s3 - upload file
 

@@ -43,16 +43,14 @@ public class Worker {
 
 
         while(true){
-            //get massage
+            //get massages
             List<Message> messages = JOB_SQS.getMessage();
-            // do job
-            //todo: job
+            //go throw the massages
             for (Message m : messages) {
-                //todo: make mini function and check!
-                //System.out.println(m.body());
+                //read the massage body
                 SendAndReceiveJsonToWorker.Review review = gson.fromJson(m.body(), SendAndReceiveJsonToWorker.Review.class);
+                //do job
                 String ans = jsonToHTML(review);
-                //<span></span
                 //todo: check
                 //If there are 2 same messages and queue already destroyed - put will not work
                 try {

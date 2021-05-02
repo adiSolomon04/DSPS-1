@@ -69,10 +69,6 @@ public class Manager {
         //sqsOperationsIn.createSQS();
         sqsOperationsIn.getQueue();
 
-        //todo: for each local app!!
-        sqsOperationsOut = new SQSOperations(SQSOperations.OUT_QUEUE);
-        //sqsOperationsOut.createSQS();
-        sqsOperationsOut.getQueue();
 
         sqsOperationsJobs = new SQSOperations(SQSOperations.JOB_QUEUE);
         sqsOperationsJobs.createSQS();
@@ -96,6 +92,7 @@ public class Manager {
 
         while(moreFuturesAvailable) {
             while (!Terminate) {
+                // todo: insert sending to thread ? open instances before jop
                 //Get Jobs to job queue
                 List<Message> Messages = sqsOperationsIn.getMessage();
                 for (Message message : Messages) {
