@@ -20,10 +20,12 @@ public class LocalApplication {
     /*
     Update ami after creating your image
      */
-    private static final String amiId = "ami-0dbccf8207854c5d8";
+    private static final String amiId = "ami-08b3b400e433f2331";
     private static String managerId = "";
-    private static String n = "50";
+    private static String n;
     private static String LocalQueueName;
+    private static Boolean toTerminate;
+
 
     private static SQSOperations sqsOperationsIn;
     private static SQSOperations sqsOperationsOut;
@@ -31,7 +33,7 @@ public class LocalApplication {
 
 // java  -jar yourjar.jar inputFileName1... inputFileNameN n [terminate]
     public static void main(String[] args) {
-        String n;
+
         int fileNum = 0;
         //Input
         if (args.length < 2) {
@@ -40,9 +42,11 @@ public class LocalApplication {
         }
 
         if (args[args.length-1].equals("[terminate]")) {
+            toTerminate = true;
             n = args[args.length - 2];
             fileNum = args.length - 2;
         } else {
+            toTerminate = false;
             n = args[args.length - 1];
             fileNum = args.length - 1;
         }
@@ -64,7 +68,6 @@ public class LocalApplication {
         if (!ec2Operations.ManagerExists()) {
             managerId = ec2Operations.createInstance(ec2Operations.ManagerName, managerCommand + " " + n + " " + amiId + "\n");
             sqsOperationsIn.createSQS();
-            //sqsOperationsOut.createSQS();
         }
         sqsOperationsIn.getQueue();
 
@@ -72,6 +75,8 @@ public class LocalApplication {
         Random rand = new Random();
         LocalQueueName = SQSOperations.LOCAL_QUEUE+"_"+System.currentTimeMillis()+Math.abs(rand.nextLong());
         sqsOperationsOut = new SQSOperations(LocalQueueName);
+        sqsOperationsOut.createSQS();
+        sqsOperationsOut.getQueue();
 
         System.out.println("Uploading files to s3\n");
         //Upload files to S3
@@ -85,6 +90,7 @@ public class LocalApplication {
         }
         //todo: add terminate
 
+        /*
         //check for errors
         System.out.println("Checking for errors in Manager\n");
         List<Message> Messages = sqsOperationsIn.getMessage();
@@ -94,6 +100,7 @@ public class LocalApplication {
             System.exit(1);
         }
         System.out.println("No Error found\n");
+         */
 
         System.out.println("Waiting for answers from manager\n");
         List<Message> messages = sqsOperationsOut.getMessage();
@@ -118,6 +125,8 @@ public class LocalApplication {
             messages = sqsOperationsOut.getMessage();
         }
         System.out.println("Downloaded all answers to folder bin\n");
+        if(toTerminate)
+            sqsOperationsIn.sendMessage("[terminate]"); //input_173636363-Queue_16194582471827992286586911152223
         sqsOperationsOut.deleteSQS();
         System.out.println("Delete Local SQS");
     }

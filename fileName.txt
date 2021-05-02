@@ -1,50 +1,9 @@
 Manager start !
-got AMI ami-052a1b35d8f4eef2eManager whilefile
-input_1619438614791	before open workerafter open workerline2
-job line3
-job line4
-job line5
-job line6
-job line7
-job line8
-job line9
-job line10
+got AMI ami-0e6dcbd00da8516baManager whilefile
+input_1619539286873	before open workerafter open workerbefore open workerafter open workerbefore open workerafter open workerfile
+input_1619539289136	before open workerafter open workerbefore open workerafter open workerbefore open workerafter open workerbefore open workerafter open workerbefore open workerafter open workerbefore open workerafter open workerine10
 job line11
 job line12
 job line13
 job line14
-job line15
-job line16
-job line17
-job line18
-job line19
-job line20
-job line21
-job line22
-job line23
-job line24
-job line25
-job line26
-job line27
-job line28
-job line29
-job line30
-job line31
-job line32
-job line33
-job line34
-job line35
-job line36
-job line37
-job line38
-job line39
-job line40
-job line41
-job line42
-job line43
-job line44
-job line45
-job line46
-job line47
-job line48
 end jobs send-------------------
