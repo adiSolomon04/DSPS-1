@@ -39,10 +39,6 @@ public class Manager {
 
 // // java  -jar yourjar.jar n ami
     public static void main(String[] args) throws IOException {
-        BufferedWriter myWriter = new BufferedWriter(new FileWriter("fileName.txt"));
-        myWriter.write("Manager start !\n");
-        myWriter.flush();
-
         //Get n
         if (args.length != 2) {
             sendError("Err\n not enough args\nneed n and amiId");
@@ -56,10 +52,6 @@ public class Manager {
         }
 
         String amiId = args[1];
-
-        myWriter.write("got AMI "+amiId);
-        myWriter.flush();
-
 
         /*
         Start init
@@ -84,8 +76,6 @@ public class Manager {
         /*
         End - init
          */
-        myWriter.write("Manager while");
-        myWriter.flush();
 
         boolean moreFuturesAvailable = true;
 
@@ -96,7 +86,6 @@ public class Manager {
                 //Get Jobs to job queue
                 List<Message> Messages = sqsOperationsIn.getMessage();
                 for (Message message : Messages) {
-                    myWriter.write("file\n");
                     //Check if terminate
                     if (message.body().equals("[terminate]")) {
                         Terminate = true;
@@ -111,36 +100,22 @@ public class Manager {
 
                     //Json
                     SendAndReceiveJsonToWorker jsonToWorker = new SendAndReceiveJsonToWorker(KeyQueue[1]);
-                    int newJobs = jsonToWorker.sendJobs(KeyQueue[0], sqsOperationsJobs);//"inputFiles/"/*
-                    numJobs.addAndGet(newJobs);
-                    myWriter.write(KeyQueue[0]+"\t");
-                    //open new Instances if needed
-                    int newInstNum = (int)(Math.ceil(numJobs.get() / (1.0*n)));
-                    int maxInst = ec2Operations.openMoreWorkers();
-                    if (numInstances < newInstNum & maxInst>0) {
-                        for (int i = 0; i < Math.min(newInstNum - numInstances, maxInst) ; i++) {
-                            myWriter.write("before open worker");
-                            myWriter.flush();
-                            workerIds.add(ec2Operations.createInstance(EC2Operations.WorkerName, workerCommand));
-                            myWriter.write("after open worker");
-                            myWriter.flush();
-                            numInstances++;
-                        }
-                    }
-
-                    executorGetAnswer.addMission(jsonToWorker,sqsOperationsAnswers, numJobs);
-
+                    jsonToWorker.setSqsOperationsAnswers(sqsOperationsAnswers);
+                    executorGetAnswer.addMissionSend(KeyQueue[0], sqsOperationsJobs,jsonToWorker);
                 }
-                executorGetAnswer.checkFuture(s3Operations,HTMLHeader,HTMLFooter,sqsOperationsOut);
+                executorGetAnswer.checkFutureSend(numJobs,ec2Operations,numInstances,workerIds,workerCommand,n);
+                executorGetAnswer.checkFutureReceive(s3Operations,HTMLHeader,HTMLFooter,sqsOperationsOut);
                 sqsOperationsIn.deleteMessage(Messages);
             }
-            if(moreFuturesAvailable = !executorGetAnswer.isEmpty()) {
+            moreFuturesAvailable = !executorGetAnswer.isEmpty();
+            if(moreFuturesAvailable) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                executorGetAnswer.checkFuture(s3Operations, HTMLHeader, HTMLFooter, sqsOperationsOut);
+                executorGetAnswer.checkFutureSend(numJobs,ec2Operations,numInstances,workerIds,workerCommand,n);
+                executorGetAnswer.checkFutureReceive(s3Operations, HTMLHeader, HTMLFooter, sqsOperationsOut);
             }
         }
         ec2Operations.deleteInstanceById(workerIds);

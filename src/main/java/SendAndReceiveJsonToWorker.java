@@ -17,6 +17,8 @@ public class SendAndReceiveJsonToWorker {
     private int fileJobsLeft;
     private String outputKey; //output File name
     private SQSOperations LocalQueue;
+    private SQSOperations sqsOperationsAnswers;
+    //private int newJobs;
 
     //private HashMap<String, <Array,String, Integer>> filesAnswers;
 
@@ -30,10 +32,6 @@ public class SendAndReceiveJsonToWorker {
 
     public int sendJobs(String Filename, SQSOperations JOB_SQS) throws IOException {
         outputKey = "output"+Filename;
-        BufferedWriter myWriter = new BufferedWriter(new FileWriter("fileName.txt", true));
-        myWriter.write("\nstart jobs send-------------------\n");
-        myWriter.flush();
-
         //File Reader
         try {
             reader = new FileReader(Filename);//(args[0]);
@@ -64,11 +62,7 @@ public class SendAndReceiveJsonToWorker {
                 JOB_SQS.sendMessage(gson.toJson(gsonLoad[i].reviews[j]));
                 jobCount++;
             }
-            myWriter.write("job line"+i+"\n");
-            myWriter.flush();
         }
-        myWriter.write("end jobs send-------------------\n");
-        myWriter.flush();
         fileJobs = new boolean[jobCount];
         //assign number of jobs to Left
         fileJobsLeft = jobCount--;
@@ -128,6 +122,16 @@ public class SendAndReceiveJsonToWorker {
     }
 
     public SQSOperations getLocalQueue() {return LocalQueue; }
+
+    public int getFileJobsLeft() { return fileJobsLeft; }
+
+    public void setSqsOperationsAnswers(SQSOperations sqsOperationsAnswers) {
+        this.sqsOperationsAnswers =  sqsOperationsAnswers;
+    }
+    public SQSOperations getSqsOperationsAnswers() {
+        return sqsOperationsAnswers;
+    }
+
 
     public class JsonClassRead {
         public String title;

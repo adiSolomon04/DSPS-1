@@ -50,6 +50,7 @@ public class LocalApplication {
             n = args[args.length - 1];
             fileNum = args.length - 1;
         }
+        fileNum = fileNum/2;
 
         try {
             Integer.parseInt(n);
@@ -85,7 +86,7 @@ public class LocalApplication {
             String ID = "" + System.currentTimeMillis();
             String key = "input_" + ID;
             s3Operations.uploadFile(fileName, key);
-            fileNames.put(ID, fileName.substring(0,fileName.length()-4));
+            fileNames.put(ID, args[i+fileNum]);//fileName.substring(0,fileName.length()-4));
             sqsOperationsIn.sendMessage(key+"-"+LocalQueueName); //input_173636363-Queue_16194582471827992286586911152223
         }
         //todo: add terminate
@@ -116,7 +117,7 @@ public class LocalApplication {
             for(Message message : messages){
                 String ID = getID(message.body());
                 String fileName = fileNames.remove(ID);
-                s3Operations.downloadFileJson("bin/" + fileName + ".html", message.body());
+                s3Operations.downloadFileJson(fileName, message.body());
                 s3Operations.deleteFile("input_" + ID);
                 s3Operations.deleteFile(message.body());
                 System.out.println("Downloaded answer to file\t" + fileName+"\n");
