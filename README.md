@@ -16,7 +16,7 @@ java -jar Local.jar inputFileName1... inputFileNameN outputFileName1... outputFi
 
   the output of the system is html files that containing a line for each input review.
   
-  time for all input: *****
+  time for all input: 17:35 minutes
 Local
 ----
 1. the local read the arguments.
@@ -56,3 +56,60 @@ Manager
         * submit to the executor mission to send jobs to the "Jobs_Queue" and count them
     * check all the future of the send jobs mission, for each one that done add the number of new job to atomic Integer which contain how much jobs dont have answer.
       
+      
+      
+      
+      
+      
+Mandatory Requirements
+-----
+* Be sure to submit a README file. Does it contain all the requested information? If you miss any part, you will lose points. Yes including your names and ids.
+
+      There is every thing
+* Did you think for more than 2 minutes about security? Do not send your credentials in plain text!
+      
+      The credentials saved only on the local computer in file named credentials. Inorder to give the premmision to the instance in the aws server we gave them WorkerAndMennager role with every premission they need
+* Did you think about scalability? Will your program work properly when 1 million clients connected at the same time? How about 2 million? 1 billion? Scalability is very important aspect of the system, be sure it is scalable!
+
+      
+      The software can work for a large number of users and a large number of files. It will be necessary to change the instance type of the manager to a larger size and allow it a larger number of threads in the pool. But these are two simple changes that will allow the program to work for as many customers as we want.
+      The manager is still a bottleneck because even though everything runs on different threads it's a single computer.
+* What about persistence? What if a node dies? What if a node stalls for a while? Have you taken care of all possible outcomes in the system? Think of more possible issues that might arise from failures. What did you do to solve it? What about broken communications? Be sure to handle all fail-cases!
+
+      In case of a fall of one of the workers, another worker will take the task and complete it. If this creates a double answer situation there will be no problem because each answer is directed to a specific file and also has an id.
+* Threads in your application, when is it a good idea? When is it bad? Invest time to think about threads in your application!
+
+      We used thread only in the mannage נecause there is a bottleneck and a lot of independent missions 
+* Did you run more than one client at the same time? Be sure they work properly, and finish properly, and your results are correct.
+
+      Yes.
+* Do you understand how the system works? Do a full run using pen and paper, draw the different parts and the communication that happens between them.
+
+      We understand
+* Did you manage the termination process? Be sure all is closed once requested!
+
+      Yes.
+* Did you take in mind the system limitations that we are using? Be sure to use it to its fullest!
+
+      We have limited the amount of instance to the maximum amount allowed. We also addressed the problematic that there is a chance that a message will not be processed within the allotted time.
+* Are all your workers working hard? Or some are slacking? Why?
+
+      Everyone works hard because everybody has access to all messages
+* Is your manager doing more work than he's supposed to? Have you made sure each part of your system has properly defined tasks? Did you mix their tasks? Don't!
+
+      No.
+* Lastly, are you sure you understand what distributed means? Is there anything in your system awaiting another?
+
+      Yes.No.
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      Eran Aflalo 209343722
+      Adi Solomon *********
