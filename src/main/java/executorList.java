@@ -1,6 +1,7 @@
 import com.example.ec2.EC2Operations;
 import com.example.s3.S3ObjectOperations;
 import com.example.sqs.SQSOperations;
+import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -88,7 +89,12 @@ public class executorList {
                 int maxInst = ec2Operations.openMoreWorkers();
                 if (numInstances < newInstNum & maxInst>0) {
                     for (int i = 0; i < Math.min(newInstNum - numInstances, maxInst) ; i++) {
-                        workerIds.add(ec2Operations.createInstance(EC2Operations.WorkerName, workerCommand));
+                        try {
+                            workerIds.add(ec2Operations.createInstance(EC2Operations.WorkerName, workerCommand));
+                        }
+                        catch (Ec2Exception ec2Exception){
+
+                        }
                         numInstances++;
                     }
                 }
