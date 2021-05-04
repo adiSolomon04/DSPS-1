@@ -20,7 +20,7 @@ public class LocalApplication {
     /*
     Update ami after creating your image
      */
-    private static final String amiId = "ami-08b3b400e433f2331";
+    private static final String amiId = "ami-0bcdf63a578382fa5";
     private static String managerId = "";
     private static String n;
     private static String LocalQueueName;

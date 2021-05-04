@@ -74,7 +74,7 @@ public class executorList {
             SendAndReceiveJsonToWorker sendAndReceiveJsonToWorker = null;
             int newJobs =0;
             if(F.isDone()){
-                futuresReceive.remove(F);
+                futuresSend.remove(F);
                 try {
                     sendAndReceiveJsonToWorker = F.get();
                     newJobs = sendAndReceiveJsonToWorker.getFileJobsLeft();
