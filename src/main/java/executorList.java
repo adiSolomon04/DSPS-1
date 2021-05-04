@@ -5,10 +5,7 @@ import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class executorList {
@@ -21,8 +18,8 @@ public class executorList {
     public executorList(int k){
         this.k = k;
         executor = Executors.newFixedThreadPool(this.k);
-        futuresReceive = new LinkedList<Future<SendAndReceiveJsonToWorker>>();
-        futuresSend = new LinkedList<Future<SendAndReceiveJsonToWorker>>();
+        futuresReceive = new CopyOnWriteArrayList<Future<SendAndReceiveJsonToWorker>>();
+        futuresSend = new CopyOnWriteArrayList<Future<SendAndReceiveJsonToWorker>>();
     }
 
     public void addMissionReceive(SendAndReceiveJsonToWorker jsonToWorker, SQSOperations sqsOperationsAnswers, AtomicInteger numJobs){
