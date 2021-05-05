@@ -17,6 +17,7 @@ java -jar Local.jar inputFileName1... inputFileNameN outputFileName1... outputFi
   the output of the system is html files that containing a line for each input review.
   
   time for all input: 17:35 minutes
+  
 Local
 ----
 1. the local read the arguments.
