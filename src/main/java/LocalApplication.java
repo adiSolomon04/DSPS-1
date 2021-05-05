@@ -20,7 +20,7 @@ public class LocalApplication {
     /*
     Update ami after creating your image
      */
-    private static final String amiId = "ami-0bcdf63a578382fa5";
+    private static final String amiId = "ami-0418f4f998da12300";
     private static String managerId = "";
     private static String n;
     private static String LocalQueueName;
@@ -33,7 +33,7 @@ public class LocalApplication {
 
 // java  -jar yourjar.jar inputFileName1... inputFileNameN n [terminate]
     public static void main(String[] args) {
-
+        Long startTime = System.currentTimeMillis();
         int fileNum = 0;
         //Input
         if (args.length < 2) {
@@ -130,6 +130,7 @@ public class LocalApplication {
             sqsOperationsIn.sendMessage("[terminate]"); //input_173636363-Queue_16194582471827992286586911152223
         sqsOperationsOut.deleteSQS();
         System.out.println("Delete Local SQS");
+        System.out.println(System.currentTimeMillis()-startTime);
     }
 
 

@@ -4,7 +4,9 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SQSOperations {
     private String QUEUE_NAME;
@@ -23,9 +25,12 @@ public class SQSOperations {
     }
 
     public void createSQS() {
+        Map<QueueAttributeName,String> attr = new HashMap<>();
+        attr.put(QueueAttributeName.VISIBILITY_TIMEOUT,"150");
         try {
             CreateQueueRequest request = CreateQueueRequest.builder()
                     .queueName(QUEUE_NAME)
+                    .attributes(attr)
                     .build();
             CreateQueueResponse create_result = sqs.createQueue(request);
         } catch (QueueNameExistsException e) {
@@ -33,7 +38,6 @@ public class SQSOperations {
 
         }
     }
-
     public void getQueue(){
         GetQueueUrlRequest getQueueRequest = GetQueueUrlRequest.builder()
                 .queueName(QUEUE_NAME)
