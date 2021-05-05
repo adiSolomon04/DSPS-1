@@ -57,8 +57,20 @@ Manager
         * submit to the executor mission to send jobs to the "Jobs_Queue" and count them
     * check all the future of the send jobs mission, for each one that done add the number of new job to atomic Integer which contain how much jobs dont have answer.
       
-      
-      
+Worker
+----
+1. create SQSOperations object which simplifies the aws operation to send massage throw the sqs from mannager to workers (*one sqs for all the workers* "Jobs_Queue").
+2. get a single job from the Jobs_Queue
+    *a job is writen in a JSON format with the fields such as:
+      *jobFile - the file that the job is related to;
+      *jobNum - the job number in the file;
+      *text - review to analyze
+3. Analyze the review using sentiment and named Entity Recognition.
+4. Get the file's answer queue and write the result.
+5. Go to 1. 
+
+finishes when job queue is empty.
+terminated by manager.
       
       
       
