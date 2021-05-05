@@ -4,7 +4,7 @@ Description
 This project done within the Programming distributed systems course of Dr. Adler Menachem.
 The code was written in Java and use the Amazon Web Services(AWS).
 
-inorder to run the code you have to save the cardential that given from amazon and save them ןn the appropriate location on the computerץ
+inorder to run the code you have to save the cardential that given from amazon and save them ןn the appropriate location on the computer.
 Then, you can run in the terminal the comandline:
 ```bash
 java -jar Local.jar inputFileName1... inputFileNameN outputFileName1... outputFileNameN n [terminate]
@@ -16,7 +16,7 @@ java -jar Local.jar inputFileName1... inputFileNameN outputFileName1... outputFi
 
   the output of the system is html files that containing a line for each input review.
   
-  time for all input: 17:35 minutes
+  time for all input: 8:20 minutes
   
 Local
 ----
@@ -55,24 +55,36 @@ Manager
         * else it downlad the file from s3, create SQSOperations to collect the answer from the worker to the specific file (part of the massage is which file it belong to. "Answer_Queue_ID") 
         * create SendAndReceiveJsonToWorker which is Object for receiving and sending messages of one file
         * submit to the executor mission to send jobs to the "Jobs_Queue" and count them
-    * check all the future of the send jobs mission, for each one that done add the number of new job to atomic Integer which contain how much jobs dont have answer.
-      
+    * check all the future of the send jobs mission, for each one that done add the number of new job to atomic Integer numJobs which contain how much jobs dont have answer.
+        * open instance in the ratio of numJobs and n
+        * submit to the executor mission to recevie jobs from "ANSWER_SQS_ID" every new job that have done we decrise numJobs (check by id) and add to the HTML
+     * check all the future of the receive jobs mission, for each one that done upload the full html to S3 and send to the specific local sqs the name of the file to downlod
+6. while there is future 
+      * check all the future of the send jobs mission
+      * check all the future of the receive jobs mission
+7. close instances.
+  
 Worker
 ----
 1. create SQSOperations object which simplifies the aws operation to send massage throw the sqs from mannager to workers (*one sqs for all the workers* "Jobs_Queue").
 2. get a single job from the Jobs_Queue
-    *a job is writen in a JSON format with the fields such as:
-      *jobFile - the file that the job is related to;
-      *jobNum - the job number in the file;
-      *text - review to analyze
+    * a job is writen in a JSON format with the fields such as:
+        * jobFile - the file that the job is related to;
+        * jobNum - the job number in the file;
+        * text - review to analyze
 3. Analyze the review using sentiment and named Entity Recognition.
-4. Get the file's answer queue and write the result.
+4. Get the file's answer queue and send the result with HTML tags(like <p> and <a>).
 5. Go to 1. 
 
 finishes when job queue is empty.
 terminated by manager.
       
       
+      
+SQS
+-----
+VISIBILITY_TIMEOUT - 150
+Region = US_EAST_1
       
 Mandatory Requirements
 -----
